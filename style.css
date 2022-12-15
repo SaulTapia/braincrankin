@@ -101,7 +101,7 @@ canvas[resize] {
     height: 100%;
 }
 
-.drawing {
+.drawing-style {
     background-color: white;
     border: 15px solid var(--maroon);
     border-radius: 15px;

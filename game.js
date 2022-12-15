@@ -1,5 +1,5 @@
-const lang = {
-    "en-EN" : {
+var lang = {
+    "en" : {
         "no_name_error" : "No name provided.",
         "name_must_be_string": "Name must be a string.",
         "name_too_long": "Name is too long.",
@@ -16,9 +16,41 @@ const lang = {
         "write_prompt_from_drawing": "What is this?",
         "show" : "show",
         "next": "next",
-        "players": "players"
+        "players": "players",
+        'gamemodes' : "gamemodes",
+        'lobby_guest_text': "waiting for the host to start the game...",
+        'nickname': "choose a nickname",
+        'start': "Start!",
+        "empty_slot": "Empty slot",
+        "game_results": "Game results",
+    },
+    "es": {
+        "no_name_error" : "No se recibió un nombre.",
+        "name_must_be_string": "El nombre debe ser un String",
+        "name_too_long": "El nombre es demasiado largo.",
+        "name_length_zero": "El nombre debe tener al menos un caracter.",
+        "full_players": "La partida esta llena.",
+        "game_already_started": "Esta partida ya inició. Por favor espera a que termine.",
+        "classic" : "Clásico",
+        "classic_desc" : "Escribe ideas y otros las dibujarán!",
+        "faceoff" : "Enfrentamiento",
+        "faceoff_desc" : "Crea personajes para vencer a los demás!",
+        "coming_soon" : "Proximamente...",
+        "write_prompt": "Escribe algo!",
+        "draw_from_prompt": "Dibuja esto!",
+        "write_prompt_from_drawing": "¿Qué es esto?",
+        "show" : "Mostrar",
+        "next": "Siguiente",
+        "players": "Jugadores",
+        'gamemodes' : "Modos de juego",
+        'lobby_guest_text': "Esperando que el anfitrión inicie el juego..",
+        'nickname': "Escoge un nombre",
+        'start': "Iniciar!",
+        "empty_slot": "Lugar vacío",
+        "game_results": "resultados del juego",
     }
 }
+
 
 const gameModes = [
     {
@@ -27,12 +59,12 @@ const gameModes = [
         "gameStyle" : "classic",
         "time-limit-secs" : 40
     },
-    {
-        "name" : "faceoff",
-        "desc" : "faceoff_desc",
-        "gameStyle" : "versus",
-        "time-limit-secs": 40
-    },
+    // {
+    //     "name" : "faceoff",
+    //     "desc" : "faceoff_desc",
+    //     "gameStyle" : "versus",
+    //     "time-limit-secs": 40
+    // },
     {
         "name" : "coming_soon",
         "desc" : "",
@@ -86,8 +118,15 @@ const widths = [
 
 const params = new URLSearchParams(window.location.search);
 
+console.log(lang)
 var language = navigator.language || navigator.userLanguage;
+language = language.slice(0,2)
 console.log("Language is: " + language)
+if(!(lang[language])) {
+    language = "en"
+}
+console.log("Language is: " + language)
+
 
 
 class Player
@@ -137,10 +176,6 @@ class Game {
                 game.game_interface.hostButton.disabled = false;
             }
         }
-        if(!Object.hasOwn(lang, language)) {
-            language = "en-EN";
-        }
-        
         this.peer.on('open', function(id) {
             setup_peer(id);
         });
@@ -325,6 +360,9 @@ class Game {
                     
                     case "gameResults":
                         this.gameResults = data.gameResults;
+                        this.game_interface.clearTimeline()
+                        this.game_interface.timelineIndex = -1
+                        this.game_interface.timelineElementIndex = -1
                         this.finishGame();
                         break;
 
@@ -428,7 +466,9 @@ class Game {
                                     game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
                                     game.readySet.delete(conn.peer)
                                     game.sendUpdatePlayers();
-                                    game.tryToStartNextRound()
+                                    if(game.game_started) {
+                                        game.tryToStartNextRound()
+                                    }
                                     break;
                                 
                                 case 'ready':
@@ -443,14 +483,18 @@ class Game {
                         game.players = game.players.filter((element) => element.peerId != conn.peer)
                         game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
                         game.sendUpdatePlayers();
-                        game.tryToStartNextRound()
+                        if(game.game_started) {
+                            game.tryToStartNextRound()
+                        }                        
                     })
                     conn.on('error', (error) => {
                         console.warn(error)
                         game.players = game.players.filter((element) => element.peerId != conn.peer)
                         game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
                         game.sendUpdatePlayers();                
-                        game.tryToStartNextRound()
+                        if(game.game_started) {
+                            game.tryToStartNextRound()
+                        }
                     })
 
                     game.sendUpdatePlayers();
@@ -886,7 +930,7 @@ class GameInterface {
             this.has_invite = true;
             this.invite_id = params.get("invite");
         }
-        this.hostButton = document.getElementById("host-button");
+        this.hostButton = document.getElementById("host-main-button");
         this.lobbyHostButtons = document.getElementById("lobby-host-buttons");
         this.lobbyGuestText = document.getElementById("lobby-guest-text");
         this.joinDiv = document.getElementById("join-div");
@@ -990,13 +1034,13 @@ class GameInterface {
             this.changeGameListFocus(1)            
             game.sendChooseGame(1);
         })
-        this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
-        this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
-        this.listRowChildren[2].children[0].addEventListener("click",() => {
-            if(!game.is_host) return;
-            this.changeGameListFocus(2)
-            game.sendChooseGame(2);
-        })
+        // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
+        // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
+        // this.listRowChildren[2].children[0].addEventListener("click",() => {
+        //     if(!game.is_host) return;
+        //     this.changeGameListFocus(2)
+        //     game.sendChooseGame(2);
+        // })
         var assignColorListener = (but, i) => {
             but.addEventListener("click", () => {
                 this.color = colors[i];
@@ -1178,6 +1222,11 @@ class GameInterface {
 
     setLanguageLabels() {
         document.getElementById("players-label").textContent = lang[language]['players']
+        document.getElementById("gamemodes-label").textContent = lang[language]['gamemodes']
+        document.getElementById("lobby-guest-text").textContent = lang[language]['lobby_guest_text']
+        document.getElementById("nickname-label").textContent = lang[language]['nickname']
+        document.getElementById("start-label").textContent = lang[language]['start']
+        document.getElementById("game-results").textContent = lang[language]['game_results']
     }
     
     changeGameListFocus(index) {        
@@ -1263,7 +1312,7 @@ class GameInterface {
                 console.log("Name is " + this.game.players[i].name)
 
             }
-            else children[i].children[1].textContent = "Empty slot"
+            else children[i].children[1].textContent = lang[language]["empty_slot"]
         }
     }
 
@@ -1444,7 +1493,7 @@ class GameInterface {
 
     showFinalsDiv() {
         this.finalsDiv.classList.add("d-flex");
-        this.finalsDiv.classList.remove("d-none");
+        this.finalsDiv.classList.remove("d-none");        
     }
 
     finishGame() {
@@ -1462,7 +1511,6 @@ class GameInterface {
     doNextFinalElement(send = true) {
         console.log("=================================================")
         console.log("Call showContentDiv from nextFinalElement")
-        console.log(this)
         console.log(this.timelineIndex, this.timelineElementIndex)
         this.showContentDiv();
         if(send && this.game.is_host) {
@@ -1539,6 +1587,7 @@ class GameInterface {
                 }
             })
             element.appendChild(butt);
+            this.chatHolder.scrollTop = this.chatHolder.scrollHeight;
         }
     }
 
@@ -1548,6 +1597,9 @@ class GameInterface {
             this.pendingContentDiv.classList.add("d-flex");
             this.pendingContentDiv.classList.remove("d-none");
             this.pendingContentDiv = undefined;
+            setTimeout(() => {
+                this.chatHolder.scrollTop = this.chatHolder.scrollHeight                
+            }, 100);
         }
     }
 
@@ -1577,6 +1629,7 @@ class GameInterface {
                 contentDiv.classList.add("d-flex");
                 contentDiv.classList.remove("d-none");
                 this.game.sendShowContentDiv();
+                this.chatHolder.scrollTop = this.chatHolder.scrollHeight;
                 setTimeout(() => {
                     console.log("Calling doNextFinalElement from Next button")
                     that.doNextFinalElement();
@@ -1637,7 +1690,7 @@ class GameInterface {
             //var memeSvg = parser.parseFromString(element.draw, "image/svg+xml");
             var memePng = document.createElement('img');
             memePng.src = element.draw;
-            memePng.classList.add("drawing")
+            memePng.classList.add("drawing-style")
             contentDiv.appendChild(memePng);
         }
     }
@@ -1649,3 +1702,4 @@ console.log("i am losing my mind")
 var game = new Game();
 var game_interface = new GameInterface(game);
 game.assign_game_interface(game_interface);
+

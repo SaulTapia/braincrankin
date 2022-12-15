@@ -2,3 +2,6 @@ assets/
 obscurifier.py
 obscurify.txt
 todo.txt
+obfuscated*
+megaobfuscated*
+minified*

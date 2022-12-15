@@ -142,7 +142,7 @@
                         </div>
                     </div>
                     <div id="lobby-games" class="d-none flex-column col-lg-8 col-12 mh-100">
-                        <h3 class="text-center">Gamemodes</h3>
+                        <h3 id="gamemodes-label" class="text-center">Gamemodes</h3>
                         <ul class="container game-list h-50 h-lg-100">
                             <div id="game-list-row" class="row">
                                 <li class="game-list-container col-lg-4 col-md-6 col-12">
@@ -157,72 +157,6 @@
                                         <p>a</p>
                                     </button>
                                 </li>                                
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
-                                <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
-                                        <h3>a</h3>
-                                        <p>a</p>
-                                    </button>
-                                </li>
                             </div>
                         </ul>
                         <div id="lobby-host-buttons" class="m-2 d-flex justify-content-around">
@@ -238,19 +172,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="lobby-guest-text" class="d-flex justify-content-around">
-                            Waiting for the host to start...
+                        <div id="lobby-guest-text" class="d-flex justify-content-around">                            
                         </div>
                     </div>
                     <div id="join-div" class="animate__bounceIn m-0 p-0 col-12 d-flex justify-content-center align-items-center">
                         <div class="main-menu-box d-flex flex-column flex-lg-row justify-content-center align-items-around">
                             <div class="w-lg-50 w-100 d-flex align-items-center justify-content-center">
-                                <h1 class="text-center" >Choose a nickname</h1>
+                                <h1 id="nickname-label" class="text-center" >Choose a nickname</h1>
                             </div>
                             <div class="w-lg-50 w-100 d-flex flex-column justify-content-center align-items-center p-3">
                                 <input type="text" id="namebox" maxlength="20" class="text-input"></input>
-                                <button id="host-button" class="btn btn-primary">
-                                    <span>Start!</span>
+                                <button id="host-main-button" class="btn btn-primary">
+                                    <span id="start-label">Start!</span>
                                 </button>
                             </div>
                         </div>
@@ -264,7 +197,7 @@
                     </div>
                     <div id="output-div" class="animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
                         <h2 id="output-div-label" class="animate__bounceIn mb-1"></h2>
-                        <div id="output-img-div" class="animate__bounceIn drawing">
+                        <div id="output-img-div" class="animate__bounceIn drawing-style">
                         </div>
                         <div id="output-write-div" class="animate__bounceIn">
                             <input type="text" name="" id="output-write-area" cols="20" rows="1" class="text-input"></input>
@@ -277,7 +210,7 @@
                                         
                                     </div>
                                 </div>
-                                <div id="canvas-holder" class="ratio drawing w-70" style="--bs-aspect-ratio: 75%;">
+                                <div id="canvas-holder" class="ratio drawing-style w-70" style="--bs-aspect-ratio: 75%;">
                                     <canvas id="main-canvas"></canvas>
                                 </div>
                                 <div id="width-holder" class="w-15 d-flex flex-column justify-content-around align-items-center border-main p-1">
@@ -287,9 +220,9 @@
                         </div>
                         <button id="output-button" class="btn btn-primary m-1">Done</button>
                     </div>
-                    <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100">
+                    <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100 animate__bounceIn">
                         <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-2 mh-100">
-                            <h1>Game results</h1>
+                            <h1 id="game-results"></h1>
                             <div id="chat-holder" class="d-flex flex-column">
                                 <!--
                                 <div class="d-flex flex-row-reverse">
@@ -318,5 +251,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vivus@latest/dist/vivus.min.js"></script>
     <!-- <script src="game.js"></script> -->
     <script src="game.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
+     crossorigin="anonymous"></script>
 </body>
 </html>
