@@ -56,7 +56,7 @@
      </ul>
     <main class="h-100">
         <div class="h-100 game-box">
-            <div class="container h-100 game-div border-main">
+            <div class="container h-100 game-div border-main m-mobile-0 p-mobile-0">
                 
                 <!-- <button id="host-button" class="button-anim">Host a game</button>
                 <button id="quit-button" class="button-anim">Go back</button>
@@ -66,20 +66,20 @@
                     <textarea placeholder="Party ID" id="id-box"></textarea>
                     <button class="button-anim">Join!</button>
                 </div> -->
-                <div class="row h-5 h-lg-15">
+                <div class="row d-none d-lg-flex h-5 h-lg-15">
                     <div class="col-2 col-lg-1 align-items-center d-flex h-100">
                         <button id="quit-button" class="mt-1 ratio ratio-1x1 btn game-button h-75">
                             <img src="assets/caret-left-fill.svg" alt="" class="img-fluid">
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.0.1</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.0.2</h5>
                 </div>
-                <div class="row h-85 overflow-lg-hidden">
-                    <div id="player-list" class="d-none player-list mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
+                <div class="row h-85 h-mobile-100 overflow-lg-hidden">
+                    <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
                         <h2 id="players-label"></h2>
                         <div class="w-100 mh-100 player-list">
-                            <div class="player-box row m-0 p-0 m-lg-2 p-lg-2">
+                            <div class="player-box row m-lg-2 p-lg-2">
                                 <img src="assets/person-circle.svg" alt="" class="img-fluid col-lg-2 col-12">
                                 <span class="col-lg-10">
                                     
@@ -143,7 +143,7 @@
                     </div>
                     <div id="lobby-games" class="d-none flex-column col-lg-8 col-12 mh-100">
                         <h3 id="gamemodes-label" class="text-center">Gamemodes</h3>
-                        <ul class="container game-list h-50 h-lg-100">
+                        <ul class="container game-list h-75 h-lg-100">
                             <div id="game-list-row" class="row">
                                 <li class="game-list-container col-lg-4 col-md-6 col-12">
                                     <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
@@ -160,8 +160,8 @@
                             </div>
                         </ul>
                         <div id="lobby-host-buttons" class="m-2 d-flex justify-content-around">
-                            <button class="btn btn-primary" id="invite-button">Invite</button>
-                            <button class="btn btn-primary" id="start-button">Start!</button>
+                            <button class="btn btn-primary" id="invite-button"> <h2>Invite</h2></button>
+                            <button class="btn btn-primary" id="start-button"><h2>Start!</h2></button>
                             <!-- <button class="btn btn-primary" id="start-button"  data-bs-toggle="modal" data-bs-target="#countdownModal">Start!</button> -->
                             <!-- Modal -->
                             <div class="modal fade noBorder" id="countdownModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="countdownModalLabel" aria-hidden="true">
@@ -195,30 +195,30 @@
                         </p>
                         <button id="end-input-btn" class="btn btn-primary">Go!</button>
                     </div>
-                    <div id="output-div" class="animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
-                        <h2 id="output-div-label" class="animate__bounceIn mb-1"></h2>
+                    <div id="output-div" class="h-100 animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
+                        <h1 id="output-div-label" class="animate__bounceIn mb-1"></h1>
                         <div id="output-img-div" class="animate__bounceIn drawing-style">
                         </div>
                         <div id="output-write-div" class="animate__bounceIn">
                             <input type="text" name="" id="output-write-area" cols="20" rows="1" class="text-input"></input>
                         </div>
-                        <div id="output-draw-div" class="animate__bounceIn d-flex flex-column justify-content-center align-items-center w-75 mh-100 m-1">
+                        <div id="output-draw-div" class="animate__bounceIn h-mobile-85 d-flex flex-column justify-content-center align-items-center w-mobile-100 w-lg-75 mh-100 m-mobile-0">
                             <h5 id="output-draw-label"></h5>
-                            <div class="container w-100 d-flex justify-content-center align-items-center">
-                                <div class="w-15 d-flex justify-content-center border-main container p-1">
-                                    <div class="row w-100" id="color-holder">
+                            <div class="container w-100 d-flex flex-column flex-lg-row justify-content-lg-center justify-content-between align-items-center p-mobile-0">
+                                <div class="w-lg-15 w-100 d-flex justify-content-center border-lg-main container p-0">
+                                    <div class="row w-100 m-0 p-mobile-0" id="color-holder">
                                         
                                     </div>
                                 </div>
-                                <div id="canvas-holder" class="ratio drawing-style w-70" style="--bs-aspect-ratio: 75%;">
+                                <div id="canvas-holder" class="ratio drawing-style w-mobile-100 w-lg-70 ratio-drawing">
                                     <canvas id="main-canvas"></canvas>
                                 </div>
-                                <div id="width-holder" class="w-15 d-flex flex-column justify-content-around align-items-center border-main p-1">
+                                <div id="width-holder" class="w-100 w-lg-15 d-flex flex-row flex-lg-column justify-content-around align-items-center border-lg-main p-1">
                                     
                                 </div>
                             </div>
                         </div>
-                        <button id="output-button" class="btn btn-primary m-1">Done</button>
+                        <button id="output-button" class="btn btn-primary m-1"><h4>Done</h4></button>
                     </div>
                     <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100 animate__bounceIn">
                         <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-2 mh-100">

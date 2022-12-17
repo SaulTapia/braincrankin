@@ -20,9 +20,9 @@
 
 html {
     font-family: myFont !important;
-    max-height: 100vh;
+    max-height: 100%;
     max-width: 100vw; 
-    min-height: 100vh;
+    min-height: 100%;
     min-width: 100vw;
     
     /*background-image: url('background\ lol.png'), linear-gradient(var(--blue), var(--blue-gray));*/
@@ -101,11 +101,7 @@ canvas[resize] {
     height: 100%;
 }
 
-.drawing-style {
-    background-color: white;
-    border: 15px solid var(--maroon);
-    border-radius: 15px;
-}
+
 
 .width-button {
     display: flex;
@@ -158,7 +154,8 @@ canvas[resize] {
 }
 
 .color-btn {
-    height: 40px;   
+    height: 40px;
+    border-radius: 5px;
 }
 
 .game-box-div {
@@ -218,9 +215,9 @@ canvas[resize] {
 .game-div {
     position: absolute;
     min-width: 80%;
-    min-height: 90%;
+    min-height: 95%;
     max-width: 80%;
-    max-height: 90%;
+    max-height: 95%;
 }
 
 footer{ 
@@ -386,9 +383,22 @@ footer{
     height: 40px;
 }
 
+/* .ratio-4x3 {
+    @include media-breakpoint-up(md) {
+      --bs-aspect-ratio: 50%; // 2x1
+    }
+} */
+  
+
 /* .finals-drawing {
     min-height: 80%;
 } */
+.drawing-finals-style {
+    background-color: white;
+    border: 15px solid var(--maroon);
+    border-radius: 15px;
+    max-width: 90%;
+}
 
 .finals-element .dot {
     animation: chatTypingAnimation 1.8s infinite ease-in-out;

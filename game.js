@@ -1049,7 +1049,8 @@ class GameInterface {
         for(var i = 0; i < colors.length; i++) {
             var but = document.createElement('button');
             but.classList.add('color-btn')
-            but.classList.add("col-4");
+            but.classList.add("col-2");
+            but.classList.add("col-lg-4");
             but.style.backgroundColor = colors[i];
             assignColorListener(but, i);
             this.colorHolder.appendChild(but);
@@ -1159,29 +1160,62 @@ class GameInterface {
         var pos = { x: 0, y: 0 };
 
         window.addEventListener('resize', resize);
-        document.addEventListener('mousemove', draw);
-        document.addEventListener('mousedown', (e) => {
+        this.canvas.addEventListener('mousemove', draw);
+        this.canvas.addEventListener('mousedown', (e) => {
             setPosition(e);
             draw(e);
         });
-        document.addEventListener('mouseenter', setPosition);
+        this.canvas.addEventListener('mouseenter', setPosition);
+
+
+        this.canvas.addEventListener('touchstart', (e) => {
+            setPosition(e);
+            draw(e);
+        });
+        this.canvas.addEventListener('touchmove', draw);
+        //canvas.addEventListener('touchend', handleDrawingEnd);
 
         // new position from mouse event
         function setPosition(e) {
+            if(e.touches && e.touches.length) {
+                console.log(e)
+                e.preventDefault();
+            }
             var rect = g_interface.canvas.getBoundingClientRect();
-            pos.x = e.clientX - rect.left;
-            pos.y = e.clientY - rect.top;
+            pos.x = (e.clientX || e.touches[0].clientX) - rect.left;
+            pos.y = (e.clientY || e.touches[0].clientY) - rect.top;
         }
 
-        // resize canvas
-        function resize() {
-            ctx.canvas.width = g_interface.canvas.clientWidth;
-            ctx.canvas.height = g_interface.canvas.clientHeight;
+        this.canvas.addEventListener("touchmove", function (e) {
+            console.log("doin a touchmove")
+            if(e.touches.length) {
+                console.log("preventdefault at touchmove function")
+                e.preventDefault()
+                var touch = e.touches[0];
+                var mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                g_interface.canvas.dispatchEvent(mouseEvent);
+            }
+        }, false);
+
+        this.canvasWidth = this.canvas.clientWidth;
+        function resize() {                                    
+            if (g_interface.canvas.clientWidth != g_interface.canvasWidth) {     
+                console.log(g_interface.canvas.clientWidth + " != " + g_interface.canvasWidth)
+                ctx.canvas.width = g_interface.canvas.clientWidth;
+                ctx.canvas.height = g_interface.canvas.clientHeight;                
+                g_interface.canvasWidth = g_interface.canvas.clientWidth;
+    
+            }                        
         }
 
         function draw(e) {
+            console.log("Attempting to draw")
             // mouse left button must be pressed
-            if (e.buttons !== 1) return;
+            
+            if (!(e.buttons === 1 || (e.touches && e.touches.length))) return;
             console.log("ok now draw")
 
             ctx.beginPath(); // begin
@@ -1197,6 +1231,22 @@ class GameInterface {
 
             ctx.stroke(); // draw it!
         }
+
+        // document.body.addEventListener("touchstart", function (e) {
+        //     if (e.target == g_interface.canvas) {
+        //         e.preventDefault();
+        //     }
+        // }, { passive: false });
+        // document.body.addEventListener("touchend", function (e) {
+        //     if (e.target == g_interface.canvas) {
+        //         e.preventDefault();
+        //     }
+        // }, { passive: false });
+        // document.body.addEventListener("touchmove", function (e) {
+        //     if (e.target == g_interface.canvas) {
+        //         e.preventDefault();
+        //     }
+        // }, { passive: false });                
 
         /*this.listRowChildren[3].children[0].addEventListener("click",() => {            
             if(!game.is_host) return;
@@ -1395,6 +1445,7 @@ class GameInterface {
         this.outputDiv.classList.add("d-flex");
         this.outputButton.disabled = false;
     }
+    
 
     hideOutputDiv() {
         this.outputButton.disabled = false;
@@ -1436,7 +1487,9 @@ class GameInterface {
         ctx.canvas.width = this.canvas.clientWidth;
         ctx.canvas.height = this.canvas.clientHeight;
         console.log("Set up canvas to be " + this.canvasHolder.innerWidth + " x " + this.canvasHolder.innerHeight)
+
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.length);
+        this.canvasWidth = this.canvas.clientWidth;
     }
 
     showOutputDrawDiv(label) {
@@ -1690,7 +1743,7 @@ class GameInterface {
             //var memeSvg = parser.parseFromString(element.draw, "image/svg+xml");
             var memePng = document.createElement('img');
             memePng.src = element.draw;
-            memePng.classList.add("drawing-style")
+            memePng.classList.add("drawing-finals-style")
             contentDiv.appendChild(memePng);
         }
     }
