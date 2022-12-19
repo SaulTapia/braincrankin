@@ -99,6 +99,6 @@
         max-height: 100%;
     }
     .ratio-drawing {
-        --bs-aspect-ratio: 115%;
+        --bs-aspect-ratio: 100%;
     }
 }   

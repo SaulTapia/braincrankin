@@ -1553,6 +1553,8 @@ class GameInterface {
         this.hideInputDiv();
         this.hideOutputDiv();
         this.showFinalsDiv();
+        this.timelineElementIndex = -1;
+        this.timelineIndex = -1;
         if(this.game.is_host) {
             setTimeout(() => {
                 this.doNextFinalElement()
