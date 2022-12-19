@@ -883,6 +883,15 @@ class Game {
         this.peer.on('open', function(id) {
             setup_peer(id);
         });
+        this.peer.on('close', function(id) {
+            game.game_interface.mainMenu();
+        });
+        this.peer.on('error', function(id) {
+            game.game_interface.mainMenu();
+        });
+        this.peer.on('disconnected', function(id) {
+            game.peer.reconnect()
+        })
     }
 
     kickAll() {
@@ -1205,13 +1214,15 @@ class GameInterface {
         }, false);
 
         this.canvasWidth = this.canvas.clientWidth;
+        this.canvasHeight = this.canvas.clientHeight;
         function resize() {                                    
-            if (g_interface.canvas.clientWidth != g_interface.canvasWidth) {     
+            if (g_interface.canvas.clientWidth != g_interface.canvasWidth || 
+                g_interface.canvas.clientHeight != g_interface.canvasHeight) {
                 console.log(g_interface.canvas.clientWidth + " != " + g_interface.canvasWidth)
                 ctx.canvas.width = g_interface.canvas.clientWidth;
                 ctx.canvas.height = g_interface.canvas.clientHeight;                
                 g_interface.canvasWidth = g_interface.canvas.clientWidth;
-    
+                g_interface.canvasHeight = g_interface.canvas.clientHeight;
             }                        
         }
 

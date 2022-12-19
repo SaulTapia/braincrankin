@@ -113,4 +113,8 @@
     #width-holder {
         height: 10%;
     }
+    .color-btn {
+        height: 25%;
+        border-radius: 5px;
+    }
 }   
