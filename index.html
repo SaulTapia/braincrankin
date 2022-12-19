@@ -10,8 +10,8 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=19-12-22">
-    <link rel="stylesheet" href="responsive.css?v=19-12-22">
+    <link rel="stylesheet" href="style.css?v=19-12-22.3">
+    <link rel="stylesheet" href="responsive.css?v=19-12-22.3">
     <title>BrainCrankin</title><!-- CSS only -->
     
 </head>
@@ -73,7 +73,7 @@
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.1.1</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.2.0</h5>
                 </div>
                 <div class="row h-85 h-mobile-100 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
@@ -160,8 +160,8 @@
                             </div>
                         </ul>
                         <div id="lobby-host-buttons" class="m-2 d-flex justify-content-around">
-                            <button class="btn btn-primary" id="invite-button"> <h2>Invite</h2></button>
-                            <button class="btn btn-primary" id="start-button"><h2>Start!</h2></button>
+                            <button class="btn btn-primary" id="invite-button"> <h2 id="invite-label"></h2></button>
+                            <button class="btn btn-primary" id="start-button"><h2 id="start-lobby-label"></h2></button>
                             <!-- <button class="btn btn-primary" id="start-button"  data-bs-toggle="modal" data-bs-target="#countdownModal">Start!</button> -->
                             <!-- Modal -->
                             <div class="modal fade noBorder" id="countdownModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="countdownModalLabel" aria-hidden="true">
@@ -204,8 +204,8 @@
                         </div>
                         <div id="output-draw-div" class="animate__bounceIn h-mobile-85 d-flex flex-column justify-content-center align-items-center w-mobile-100 w-lg-75 mh-100 m-mobile-0">
                             <h5 id="output-draw-label"></h5>
-                            <div class="container w-100 d-flex flex-column flex-lg-row justify-content-lg-center justify-content-between align-items-center p-mobile-0">
-                                <div class="w-lg-15 w-100 d-flex justify-content-center border-lg-main container p-0">
+                            <div class="h-mobile-90 container w-100 d-flex flex-column flex-lg-row justify-content-lg-center justify-content-between align-items-center p-mobile-0">
+                                <div id="color-container" class="w-lg-15 w-100 d-flex justify-content-center border-lg-main container p-0">
                                     <div class="row w-100 m-0 p-mobile-0" id="color-holder">
                                         
                                     </div>
@@ -250,7 +250,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vivus@latest/dist/vivus.min.js"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=19-12-22"></script>
+    <script src="game.js?v=19-12-22.3"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>

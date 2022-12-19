@@ -23,6 +23,7 @@ var lang = {
         'start': "Start!",
         "empty_slot": "Empty slot",
         "game_results": "Game results",
+        "invite": "Invite",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -33,7 +34,7 @@ var lang = {
         "game_already_started": "Esta partida ya inició. Por favor espera a que termine.",
         "classic" : "Clásico",
         "classic_desc" : "Escribe ideas y otros las dibujarán!",
-        "faceoff" : "Enfrentamiento",
+        "faceoff" : "Batalla",
         "faceoff_desc" : "Crea personajes para vencer a los demás!",
         "coming_soon" : "Proximamente...",
         "write_prompt": "Escribe algo!",
@@ -48,6 +49,7 @@ var lang = {
         'start': "Iniciar!",
         "empty_slot": "Lugar vacío",
         "game_results": "resultados del juego",
+        "invite": "Invitar",
     }
 }
 
@@ -975,6 +977,8 @@ class GameInterface {
 
         this.beep = new Audio('assets/beep.wav');
         this.finalBeep = new Audio('assets/finalBeep.wav');
+        this.bubblyNoise = new Audio('assets/bubblynoise.mp3');
+        this.rockyNoise = new Audio('assets/rockysound.mp3');
         this.hostButton.disabled = true;
         this.startButton.disabled = true;
         
@@ -1277,6 +1281,8 @@ class GameInterface {
         document.getElementById("nickname-label").textContent = lang[language]['nickname']
         document.getElementById("start-label").textContent = lang[language]['start']
         document.getElementById("game-results").textContent = lang[language]['game_results']
+        document.getElementById("invite-label").textContent = lang[language]['invite']
+        document.getElementById("start-lobby-label").textContent = lang[language]['start']
     }
     
     changeGameListFocus(index) {        
@@ -1351,6 +1357,8 @@ class GameInterface {
             this.lobbyHostButtons.classList.add("d-flex");
             this.lobbyHostButtons.classList.remove("d-none");
         }
+        this.rockyNoise.load();
+        this.rockyNoise.play();
     }
 
     updatePlayers() {
@@ -1384,6 +1392,8 @@ class GameInterface {
         //else if(this.game.in_lobby) {
             //this.game.leaveGame()
         //}
+        this.rockyNoise.load();
+        this.rockyNoise.play();
     }
 
     removeLobby() {
@@ -1400,6 +1410,7 @@ class GameInterface {
         this.countdownModal.style.display = "block"
         this.countdownModal.classList.add("show")
         this.countDownNumber.textContent = "Starting game..."
+        this.beep.load();
         this.beep.play();
         console.log("playinnn")
     }
@@ -1414,6 +1425,8 @@ class GameInterface {
     }
 
     showInputDiv() {
+        this.rockyNoise.load();
+        this.rockyNoise.play();
         this.inputDiv.classList.remove("d-none");
         this.inputDiv.classList.add("d-flex");
         console.log("Show input divv")
@@ -1444,6 +1457,8 @@ class GameInterface {
         this.outputDiv.classList.remove("d-none");
         this.outputDiv.classList.add("d-flex");
         this.outputButton.disabled = false;
+        this.rockyNoise.load();
+        this.rockyNoise.play();
     }
     
 
@@ -1546,7 +1561,9 @@ class GameInterface {
 
     showFinalsDiv() {
         this.finalsDiv.classList.add("d-flex");
-        this.finalsDiv.classList.remove("d-none");        
+        this.finalsDiv.classList.remove("d-none");
+        this.rockyNoise.load();
+        this.rockyNoise.play();      
     }
 
     finishGame() {
@@ -1602,6 +1619,8 @@ class GameInterface {
             return;
         }
         console.log("Adding element from timeline " + this.timelineIndex + ", element " + this.timelineElementIndex)
+        this.bubblyNoise.load()
+        this.bubblyNoise.play()
         this.addFinishElement(this.game.gameResults[this.timelineIndex][this.timelineElementIndex],
             this.chatHolder,
             ((this.timelineElementIndex % 2) == 0) ? "l" : "r");
@@ -1758,3 +1777,5 @@ var game = new Game();
 var game_interface = new GameInterface(game);
 game.assign_game_interface(game_interface);
 
+let htmlElement = document.getElementsByTagName("html")[0]
+htmlElement.height = window.innerHeight;
