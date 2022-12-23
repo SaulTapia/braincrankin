@@ -24,6 +24,8 @@ var lang = {
         "empty_slot": "Empty slot",
         "game_results": "Game results",
         "invite": "Invite",
+        "versus_first": "Make a character and name it!",
+        "versus_fight": "Make a character to beat the opponent!",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -50,6 +52,8 @@ var lang = {
         "empty_slot": "Lugar vacío",
         "game_results": "resultados del juego",
         "invite": "Invitar",
+        "versus_first": "Crea a un personaje y dale nombre!",
+        "versus_fight": "Crea a un personaje para derrotar al oponente!",
     }
 }
 
@@ -568,7 +572,8 @@ class Game {
                     }
                 }
                 break;
-            case "versus":
+            case "faceoff":
+                console.log("VERSUS")
                 this.roundList.push({
                     "input" : "none",
                     "output": "drawAndName",
@@ -629,9 +634,22 @@ class Game {
         }
     }
 
+    getFinalsStyle() {
+        switch(this.current_gamemode) {
+            case "classic":
+                return "chat"
+                break;
+            case "faceoff":
+                return "versus"
+                break;
+        }
+    }
+
     hostNextRound(firstRound) {
+        console.log("hostNextRound")
         console.log(this.roundList)
         console.log(this.gameResults)
+        console.log(firstRound)
         if(this.roundList.length) {
             console.log("roundlist length")
             var round = this.roundList.shift();
@@ -640,7 +658,7 @@ class Game {
             this.sendStartRound(round, firstRound)
         } else {
             console.log("Done!!")
-            this.hostSendFinishGame();
+            this.hostSendFinishGame(this.getFinalsStyle());
         }
     }
 
@@ -663,6 +681,60 @@ class Game {
         return null;
     }
 
+    makeRoundFromRoundData(roundData) {
+        switch(this.current_gamemode) {
+            case "classic":
+                if(!roundData) {
+                    return {
+                        "input" : "none",
+                        "output" : "write",
+                        "label" : "write_prompt"
+                    }
+                }
+                if(roundData.draw) {
+                    return {
+                        "input" : "draw",
+                        "output" : "write",
+                        "label" : "write_prompt_from_drawing"
+                    }
+                }
+                else if(roundData.write) {
+                    return {
+                        "input" : "write",
+                        "output" : "draw",
+                        "label" : "draw_from_prompt"
+                    }
+                } else {
+                    return {
+                        "input" : "none",
+                        "output" : "write",
+                        "label" : "write_prompt"
+                    }
+                }
+                break;
+
+            case "faceoff":
+                if(!roundData) return {
+                    "input" : "none",
+                    "output": "drawAndName",
+                    "label": "versus_first"
+                }
+                if(roundData.draw && roundData.write) {
+                    return {
+                        "input" : "drawAndName",
+                        "output": "drawAndName",
+                        "label": "versus_fight"
+                    }
+                }            
+                return {
+                    "input" : "none",
+                    "output": "drawAndName",
+                    "label": "versus_first"
+                }
+        }
+        return null;
+    }
+
     sendStartRound(round, firstRound) {
         console.log(this.roundPlayerConns)
         console.log("There are " + this.roundPlayerConns.length + " conns")
@@ -673,20 +745,23 @@ class Game {
             console.log(this.roundPlayerConns[ind])
             if(this.roundPlayerConns[ind] && this.roundPlayerConns[ind].open) {
                 console.log("KAPOW")
+                let roundData = this.getRoundData(i)
                 this.roundPlayerConns[ind].send({
                     "error" : false,
                     "type" : "roundStart",
-                    "round" : round,
-                    "roundData" : this.getRoundData(i),
+                    "round" : this.makeRoundFromRoundData(roundData),
+                    "roundData" : roundData,
                     "firstRound" : firstRound
                 })
             }            
         }
         console.log("Host has index " + this.self_match_index)
-        this.startRound(round, this.getRoundData(this.self_match_index), firstRound)
+        let hostData = this.getRoundData(this.self_match_index)
+        this.startRound(this.makeRoundFromRoundData(hostData), hostData, firstRound)
     }
 
     startRound(round, roundData, firstRound) {
+        console.log("Startround with data " + roundData)
         this.game_interface.resetOutputDiv();
         this.game_interface.resetInputDiv();
         if(firstRound) {
@@ -713,9 +788,15 @@ class Game {
                     this.game_interface.showOutputDiv();                    
                 } else {
                     this.game_interface.showInputDiv();
-                    this.game_interface.inputDrawDiv();
+                    this.game_interface.showInputDrawDiv();
                     this.game_interface.setInputDivLabel(lang[language][round.label]);
                 }
+                break;
+            case "drawAndName":
+                this.game_interface.showInputDiv();
+                this.game_interface.showInputWriteDiv(roundData.write);
+                this.game_interface.showInputDrawDiv(roundData.draw);
+                this.game_interface.setInputDivLabel(lang[language][round.label]);
                 break;
         }
         switch(round.output) {
@@ -736,6 +817,19 @@ class Game {
                 }
                 this.game_interface.set_canvas = true;
                 this.game_interface.setOutputDivLabel(lang[language][round.label]);
+                break;
+                
+            case "drawAndName":
+                this.game_interface.showOutputWriteDiv();
+                this.game_interface.showOutputDrawDiv();                    
+                this.game_interface.setOutputDivLabel(lang[language][round.label])
+
+                if(round.input == "none") {
+                    this.game_interface.showOutputDiv();
+                    this.game_interface.setupCanvas();
+                } else {
+                }
+                break;
         }
     }
 
@@ -762,15 +856,18 @@ class Game {
         }
     }
 
-    hostSendFinishGame(gameData) {
+    hostSendFinishGame(style) {
+        console.log("Sending finish with style " + style)
         for(let i = 0; i < this.playerConns.length; i++) {
             this.playerConns[i].send({
                 "error" : false,
                 "type": "gameResults",
-                "gameResults": this.gameResults
+                "gameResults": this.gameResults,
+                "style": style
             });
         }
-        this.finishGame(this.gameResults)
+        console.log("Calling it with " + style)
+        this.finishGame(style)
     }
 
     hostSendBackToLobby() {
@@ -812,8 +909,8 @@ class Game {
         }
     }
 
-    finishGame() {
-        this.game_interface.finishGame();
+    finishGame(style) {
+        this.game_interface.finishGame(style);
     }
 
     handleReady(peerId, outputData, is_self) {
@@ -850,6 +947,14 @@ class Game {
                     "user": this.name,
                     "draw" : this.game_interface.getOutputDraw()
                 }
+
+            case "drawAndName":
+                return {
+                    "user": this.name,
+                    "draw" : this.game_interface.getOutputDraw(),
+                    "write": this.game_interface.getOutputWrite()
+                }
+            
             default:
                 return undefined
         }
@@ -957,6 +1062,7 @@ class GameInterface {
         this.countdownModal = document.getElementById("countdownModal");
         this.inputDiv = document.getElementById("input-div");
         this.inputWriteDiv = document.getElementById("input-write-div");
+        this.inputDrawDiv = document.getElementById("input-draw-div");
         this.inputDivLabel = document.getElementById("input-div-label");
         this.endInputBtn = document.getElementById("end-input-btn");
         this.outputDiv = document.getElementById("output-div");
@@ -970,9 +1076,12 @@ class GameInterface {
         this.canvas = document.getElementById("main-canvas");
         this.finalsDiv = document.getElementById("finals-div");
         this.chatHolder = document.getElementById("chat-holder");
+        this.versusHolder = document.getElementById("versus-holder");
         this.colorHolder = document.getElementById("color-holder");
         this.widthHolder = document.getElementById("width-holder");
         this.canvasHolder = document.getElementById("canvas-holder");
+        this.topBar = document.getElementById("top-bar");
+        this.mainContainer = document.getElementById("main-container");
         this.set_canvas = false;
         console.log("it be this:")
         console.log(this.widthHolder)
@@ -993,7 +1102,19 @@ class GameInterface {
         
 
         this.outputButton.addEventListener("click", () => {
-            this.ready()
+            if(this.game.expected_output == "write") {
+                if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
+                    this.ready()
+                }
+            }
+            else if(this.game.expected_output == "drawAndName") {
+                if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
+                    this.ready()
+                }
+            }
+            else {
+                this.ready()
+            }
         })
 
         this.inviteButton.addEventListener("click", () => {
@@ -1056,11 +1177,20 @@ class GameInterface {
         // })
         var assignColorListener = (but, i) => {
             but.addEventListener("click", () => {
+                if(this.assignedButton) {
+                    this.assignedButton.classList.remove("color-focus")
+                }
                 this.color = colors[i];
+                but.classList.add("color-focus")
+                this.assignedButton = but
             })
         }
+
         for(var i = 0; i < colors.length; i++) {
             var but = document.createElement('button');
+            if(!this.firstColor) {
+                this.firstColor = but;
+            }
             but.classList.add('color-btn')
             but.classList.add("col-2");
             but.classList.add("col-lg-4");
@@ -1302,7 +1432,7 @@ class GameInterface {
         if(this.previousSelection) {
             this.previousSelection.classList.remove("selected-list-item");
         }
-        if(index >= this.listRowChildren.length - 1) {
+        if(index >= this.listRowChildren.length) {
             this.startButton.disabled = true;
         } else {
             this.startButton.disabled = false;
@@ -1345,6 +1475,9 @@ class GameInterface {
         this.lobbyGames.classList.remove("d-none")
         this.lobbyGames.classList.add("d-flex")
         this.lobbyGames.classList.add("animate__bounceIn");
+        this.mainContainer.classList.add("h-lg-90")
+        this.topBar.classList.add("d-lg-flex")
+
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
@@ -1395,6 +1528,8 @@ class GameInterface {
         this.playerList.classList.add("d-none");
         this.lobbyGames.classList.remove("d-flex")
         this.lobbyGames.classList.add("d-none")
+        this.mainContainer.classList.add("h-lg-90")
+        this.topBar.classList.add("d-lg-flex")
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
@@ -1413,6 +1548,8 @@ class GameInterface {
         this.playerList.classList.remove("d-flex");
         this.lobbyGames.classList.add("d-none");
         this.lobbyGames.classList.remove("d-flex");
+        this.mainContainer.classList.remove("h-lg-90")
+        this.topBar.classList.remove("d-lg-flex")
     }
 
 
@@ -1458,9 +1595,27 @@ class GameInterface {
         this.inputWriteDiv.classList.add("d-flex");
         this.inputWriteDiv.textContent = write;
     }
+
+    showInputDrawDiv(draw) {
+        this.inputDrawDiv.classList.remove("d-none");
+        this.inputDrawDiv.classList.add("d-flex");
+
+        var pngImage = document.createElement('img')
+        pngImage.src = draw;
+        pngImage.classList.add("drawing-style")
+        this.inputDrawDiv.appendChild(pngImage);
+        console.log("Append " + pngImage);
+        console.log("Appended to " + this.inputDrawDiv)
+    }
     
     resetInputDiv() {
-        
+        this.inputDrawDiv.classList.add('d-none');
+        this.inputDrawDiv.classList.remove('d-flex');
+        this.inputWriteDiv.classList.add('d-none');
+        this.inputWriteDiv.classList.remove('d-flex');
+        this.inputDivLabel.textContent = ""
+        this.inputWriteDiv.textContent = ""
+        this.inputHideDrawing()
     }
     
     showOutputDiv() {
@@ -1495,6 +1650,12 @@ class GameInterface {
         this.outputHideDrawing();
         this.outputDivLabel.textContent = "";
         this.outputWriteArea.value = "";
+        this.color = colors[0];
+        if(this.assignedButton) {
+            this.assignedButton.classList.remove("color-focus")
+        }
+        this.firstColor.classList.add("color-focus")
+        this.assignedButton = this.firstColor
     }
     
     showOutputWriteDiv() {
@@ -1535,6 +1696,13 @@ class GameInterface {
         )
     }
 
+    inputHideDrawing() {
+        this.inputDrawDiv.classList.add("d-none");
+        this.inputDrawDiv.classList.remove("d-flex");
+        while(this.inputDrawDiv.firstChild) {
+            this.inputDrawDiv.removeChild(this.inputDrawDiv.lastChild);
+        }
+    }
 
     outputHideDrawing() {
         this.outputImgDiv.classList.add("d-none");
@@ -1570,17 +1738,32 @@ class GameInterface {
         this.game.ready()
     }
 
-    showFinalsDiv() {
+    showFinalsDiv(style) {
         this.finalsDiv.classList.add("d-flex");
         this.finalsDiv.classList.remove("d-none");
+        console.log("got show with style " + style)
+        if(style == "chat") {
+            this.chatHolder.classList.add("d-flex");
+            this.chatHolder.classList.remove("d-none");
+            this.versusHolder.classList.remove("d-flex");
+            this.versusHolder.classList.add("d-none");
+            document.getElementById("game-results").classList.remove("d-none")
+        } else if(style == "versus") {
+            this.chatHolder.classList.add("d-none");
+            this.chatHolder.classList.remove("d-flex");
+            this.versusHolder.classList.add("d-flex");
+            this.versusHolder.classList.remove("d-none");
+            document.getElementById("game-results").classList.add("d-none")
+        }
         this.rockyNoise.load();
         this.rockyNoise.play();      
     }
 
-    finishGame() {
+    finishGame(style) {
+        console.log("finish game with style " + style)
         this.hideInputDiv();
         this.hideOutputDiv();
-        this.showFinalsDiv();
+        this.showFinalsDiv(style);
         this.timelineElementIndex = -1;
         this.timelineIndex = -1;
         if(this.game.is_host) {
@@ -1718,7 +1901,7 @@ class GameInterface {
                 setTimeout(() => {
                     console.log("Calling doNextFinalElement from Next button")
                     that.doNextFinalElement();
-                }, 3000)
+                }, 1500)
             })
             nextBtn.textContent = lang[language]['show'];
             res.appendChild(nextBtn);

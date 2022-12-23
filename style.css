@@ -126,6 +126,58 @@ canvas[resize] {
     border-radius: 10px;
 }
 
+#versus-ball {
+    position: relative;
+    top: 50%;  /* position the top  edge of the element at the middle of the parent */
+    left: 50%; /* position the left edge of the element at the middle of the parent */
+    scale: 80%;
+    z-index: 10;
+
+    transform: translate(-50%, -50%);
+    animation: 1.2s cubic-bezier(0.7, 0, 0.84, 0) 0s 1 bounceFromScreen;
+    overflow: visible;
+}
+
+@keyframes bounceFromScreen {
+    0% {
+        /* position: absolute; */
+        top: 50%;
+        left: 50%;
+        scale: 500%;
+        transform: rotate(0deg) translate(-50%, -50%);
+        opacity: 0;
+        z-index: 10;
+    }
+    52% {
+        /* position: absolute; */
+        scale: 80%;
+        top: 50%;
+        left: 50%;
+        opacity: 100%;
+        z-index: 10;
+        transform: rotate(0deg) translate(-50%, -50%);
+    }
+    56% { transform: translate(-50%, -50%) translate(1px, 1px) rotate(0deg); }
+    60% { transform: translate(-50%, -50%) translate(-1px, -2px) rotate(-1deg); }
+    64% { transform: translate(-50%, -50%) translate(-3px, 0px) rotate(1deg); }
+    68% { transform: translate(-50%, -50%) translate(3px, 2px) rotate(0deg); }
+    72% { transform: translate(-50%, -50%) translate(1px, -1px) rotate(1deg); }
+    76% { transform: translate(-50%, -50%) translate(-1px, 2px) rotate(-1deg); }
+    80% { transform: translate(-50%, -50%) translate(-3px, 1px) rotate(0deg); }
+    84% { transform: translate(-50%, -50%) translate(3px, 1px) rotate(-1deg); }
+    88% { transform: translate(-50%, -50%) translate(-1px, -1px) rotate(1deg); }
+    92% { transform: translate(-50%, -50%) translate(1px, 2px) rotate(0deg); }
+    96% { transform: translate(-50%, -50%) translate(1px, -2px) rotate(-1deg); }
+    100% {
+        scale: 80%;
+        top: 50%;
+        left: 50%;
+        opacity: 100%;
+        z-index: 10;
+        transform: rotate(0deg) translate(-50%, -50%);
+    }
+}
+
 #chat-holder {
     background-color: var(--blue-transparent);
     padding: 10px;
@@ -156,6 +208,10 @@ canvas[resize] {
 .color-btn {
     height: 40px;
     border-radius: 5px;
+}
+
+.color-focus {
+    border: solid black 2px;
 }
 
 .game-box-div {
@@ -252,14 +308,16 @@ footer{
 .h-10 {
     height: 10%;
 }
-.h-5
+.h-5 {
+    height: 5% !important;
+}
 
 .h-90 {
-    height: 90%;
+    height: 90% !important;
 }
 
 .h-85 {
-    height: 85%;
+    height: 85% !important;
 }
 
 .h-80 {
@@ -336,7 +394,7 @@ footer{
 }
 
 .selected-list-item {
-    border: 6px solid white;
+    border: 2px solid white !important;
 }
 
 .game-list-item {

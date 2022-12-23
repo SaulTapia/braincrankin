@@ -8,11 +8,20 @@
     .h-lg-15 {
         height: 15% !important;
     }
+    .h-lg-10 {
+        height: 10% !important;
+    }
     .w-lg-20 {
         width: 20% !important;
     }
     .w-lg-60 {
         width: 60% !important;
+    }
+    .w-lg-90 {
+        width: 90% !important;
+    }
+    .h-lg-90 {
+        height: 90% !important;
     }
     .h-lg-100 {
         height: 100% !important;
@@ -51,8 +60,65 @@
         border: 15px solid var(--maroon);
         border-radius: 15px;
     }
-    .ratio-drawing {
+    .gallery {
+        --z: 64px;  /* control the zig-zag  */
+        --s: 360px; /* control the size */
+        --g: 8px;   /* control the gap */
+        
+        display: grid;
+        /* gap: var(--g); */
+        width: 100%;
+        grid-auto-flow: column;
+        height: 100%;
+    }
+    .gallery > div {
+        width: 0;
+        min-width: calc(100% + var(--z) * 3.6);
+        height: 100%;
+        object-fit: fill;
+        -webkit-mask: var(--mask);
+                mask: var(--mask);
+        cursor: pointer;
+        transition: .5s;
+    }
+    .gallery > div:hover {
+        width: calc(2 * var(--s) / 3);
+    }
+    .gallery > div:first-child {
+        place-self: start;
+        /* clip-path: polygon(calc(2*var(--z)) 0,100% 0,100% 100%,0 100%); */
+        --mask: 
+          conic-gradient(from -135deg at right,#0000,#000 1deg 89deg,#0000 90deg) 
+            50%/100% calc(2*var(--z)) repeat-y;
+        background-color: var(--blue-dark);
+        
+    }
+    .gallery > div:last-child {
+        place-self: end;
+        /* clip-path: polygon(0 0,100% 0,calc(100% - 2*var(--z)) 100%,0 100%); */
+        --mask: 
+          conic-gradient(from   45deg at left ,#0000,#000 1deg 89deg,#0000 90deg) 
+            50% calc(50% - var(--z))/100% calc(2*var(--z)) repeat-y;
+        background-color: var(--maroon);
+    }
+    /* .ratio-drawing {
         --bs-aspect-ratio: 60%;
+    } */
+}
+
+@media (min-width: 1200px) {
+    .gallery > div {
+        width: 0;
+        min-width: calc(100% + var(--z) * 4);
+        height: 100%;
+        object-fit: fill;
+        -webkit-mask: var(--mask);
+                mask: var(--mask);
+        cursor: pointer;
+        transition: .5s;
+    }
+    .gallery > div:hover {
+        width: calc(2 * var(--s) / 3);
     }
 }
 

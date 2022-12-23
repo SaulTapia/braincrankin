@@ -10,8 +10,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=19-12-22.4">
-    <link rel="stylesheet" href="responsive.css?v=19-12-22.4">
+    <link rel="stylesheet" href="style.css?v=23-12-22">
+    <link rel="stylesheet" href="responsive.css?v=23-12-22">
+    <link rel="stylesheet" href="sass.css?v=23-12-22">
     <title>BrainCrankin</title><!-- CSS only -->
     
 </head>
@@ -66,16 +67,16 @@
                     <textarea placeholder="Party ID" id="id-box"></textarea>
                     <button class="button-anim">Join!</button>
                 </div> -->
-                <div class="row d-none d-lg-flex h-5 h-lg-15">
+                <div id="top-bar" class="row d-none d-lg-flex h-5 h-lg-10">
                     <div class="col-2 col-lg-1 align-items-center d-flex h-100">
-                        <button id="quit-button" class="mt-1 ratio ratio-1x1 btn game-button h-75">
+                        <button id="quit-button" class="ratio ratio-1x1 btn game-button w-75">
                             <img src="assets/caret-left-fill.svg" alt="" class="img-fluid">
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.2.1</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.2.2</h5>
                 </div>
-                <div class="row h-85 h-mobile-100 overflow-lg-hidden">
+                <div id="main-container" class="row h-100 h-lg-90 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
                         <h2 id="players-label"></h2>
                         <div class="w-100 mh-100 player-list">
@@ -146,13 +147,13 @@
                         <ul class="container game-list h-75 h-lg-100">
                             <div id="game-list-row" class="row">
                                 <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
+                                    <button class="btn btn-primary sass-button draw meet game-list-item d-flex flex-column justify-content-around">
                                         <h3>a</h3>
                                         <p>a</p>
                                     </button>
                                 </li>
                                 <li class="game-list-container col-lg-4 col-md-6 col-12">
-                                    <button class="btn btn-primary game-list-item d-flex flex-column justify-content-around">
+                                    <button class="btn btn-primary sass-button draw meet game-list-item d-flex flex-column justify-content-around">
                                         <h3>a</h3>
                                         <p>a</p>
                                     </button>
@@ -193,6 +194,9 @@
                         <p id="input-write-div">
 
                         </p>
+                        <div id="input-draw-div">
+
+                        </div>
                         <button id="end-input-btn" class="btn btn-primary">Go!</button>
                     </div>
                     <div id="output-div" class="h-100 animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
@@ -202,16 +206,16 @@
                         <div id="output-write-div" class="animate__bounceIn">
                             <input type="text" name="" id="output-write-area" cols="20" rows="1" class="text-input"></input>
                         </div>
-                        <div id="output-draw-div" class="animate__bounceIn h-mobile-85 d-flex flex-column justify-content-center align-items-center w-mobile-100 w-lg-75 mh-100 m-mobile-0">
+                        <div id="output-draw-div" class="animate__bounceIn h-85 d-flex flex-column justify-content-center align-items-center w-mobile-100 w-lg-90 mh-100 m-0">
                             <h5 id="output-draw-label"></h5>
-                            <div class="h-mobile-90 container w-100 d-flex flex-column flex-lg-row justify-content-lg-center justify-content-between align-items-center p-mobile-0">
-                                <div id="color-container" class="w-lg-15 w-100 d-flex justify-content-center border-lg-main container p-0">
+                            <div class="h-90 container w-100 d-flex flex-column flex-lg-row justify-content-lg-center justify-content-between align-items-center p-mobile-0">
+                                <div id="color-container" class="w-lg-15 d-flex justify-content-center border-lg-main container p-0">
                                     <div class="row w-100 m-0 p-mobile-0" id="color-holder">
                                         
                                     </div>
                                 </div>
-                                <div id="canvas-holder" class="ratio drawing-style w-mobile-100 w-lg-70 ratio-drawing">
-                                    <canvas id="main-canvas"></canvas>
+                                <div id="canvas-holder" class="drawing-style w-mobile-100 w-lg-90 h-100">
+                                    <canvas id="main-canvas" class="h-100 w-100"></canvas>
                                 </div>
                                 <div id="width-holder" class="w-100 w-lg-15 d-flex flex-row flex-lg-column justify-content-around align-items-center border-lg-main p-1">
                                     
@@ -221,9 +225,9 @@
                         <button id="output-button" class="btn btn-primary m-1"><h4>Done</h4></button>
                     </div>
                     <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100 animate__bounceIn">
-                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-2 mh-100">
+                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">
                             <h1 id="game-results"></h1>
-                            <div id="chat-holder" class="d-flex flex-column">
+                            <div id="chat-holder" class="d-none flex-column m-2">
                                 <!--
                                 <div class="d-flex flex-row-reverse">
                                     <svg> </svg>
@@ -233,6 +237,22 @@
                                     </div
                                 </div>
                                 -->
+                            </div>
+                            <div id="versus-holder" class="h-100 w-100 flex-row">
+                                <div class="gallery">
+                                    <div class="d-flex flex-lg-column">
+                                        <div class="w-100 h-lg-15">
+                                            <h1 class="text-start">I AM THE SKRUNKLY</h1>
+                                        </div>
+                                    </div>
+                                    <img id="versus-ball" src="assets/versus ball.png" alt="">
+                                    <div>
+                                        <div class="w-100 h-lg-15">
+                                            <h1 class="text-end">I AM THE SKRUNKLY</h1>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -250,7 +270,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vivus@latest/dist/vivus.min.js"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=19-12-22.4"></script>
+    <script src="game.js?v=23-12-22"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>
