@@ -121,19 +121,20 @@ canvas[resize] {
     padding: 10px;
     margin: 5px;
     word-wrap: normal;
-    background-color: var(--white-transparent);
-    height: 80%;
+    background-color: var(--white-transparent);    
     border-radius: 10px;
 }
 
+
+
 #versus-ball {
-    position: relative;
-    top: 50%;  /* position the top  edge of the element at the middle of the parent */
-    left: 50%; /* position the left edge of the element at the middle of the parent */
-    scale: 80%;
+    /*position: relative;*/
+    /*scale: 80%;*/
+    /*top: 50%;  /* position the top  edge of the element at the middle of the parent */
+    /*left: 50%; /* position the left edge of the element at the middle of the parent */
     z-index: 10;
 
-    transform: translate(-50%, -50%);
+    /*transform: translate(-50%, -50%);*/
     animation: 1.2s cubic-bezier(0.7, 0, 0.84, 0) 0s 1 bounceFromScreen;
     overflow: visible;
 }
@@ -212,6 +213,10 @@ canvas[resize] {
 
 .color-focus {
     border: solid black 2px;
+}
+
+.drawing-fit {
+    object-fit: contain;
 }
 
 .game-box-div {

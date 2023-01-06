@@ -181,6 +181,8 @@
                             <div class="w-lg-50 w-100 d-flex align-items-center justify-content-center">
                                 <h1 id="nickname-label" class="text-center" >Choose a nickname</h1>
                             </div>
+                            <div style="width: 100px; height: 100px; background-color: red;" class="animate-headbutt-left"></div>
+                            <div style="width: 100px; height: 100px; background-color: red;" class="animate-headbutt-right"></div>
                             <div class="w-lg-50 w-100 d-flex flex-column justify-content-center align-items-center p-3">
                                 <input type="text" id="namebox" maxlength="20" class="text-input"></input>
                                 <button id="host-main-button" class="btn btn-primary">
@@ -224,10 +226,10 @@
                         </div>
                         <button id="output-button" class="btn btn-primary m-1"><h4>Done</h4></button>
                     </div>
-                    <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100 animate__bounceIn">
+                    <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100">
                         <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">
                             <h1 id="game-results"></h1>
-                            <div id="chat-holder" class="d-none flex-column m-2">
+                            <div id="chat-holder" class="d-none flex-column m-2 animate__bounceIn">
                                 <!--
                                 <div class="d-flex flex-row-reverse">
                                     <svg> </svg>
@@ -239,19 +241,24 @@
                                 -->
                             </div>
                             <div id="versus-holder" class="h-100 w-100 flex-row">
-                                <div class="gallery">
-                                    <div class="d-flex flex-lg-column">
+                                <div id="gallery" class="gallery gallery-inactive">
+                                    <div class="d-none flex-lg-column animate__animated p-3">
                                         <div class="w-100 h-lg-15">
                                             <h1 class="text-start">I AM THE SKRUNKLY</h1>
                                         </div>
+                                        <div class="w-100 h-lg-85 d-flex justify-content-center align-items-center">
+                                            
+                                        </div>
                                     </div>
-                                    <img id="versus-ball" src="assets/versus ball.png" alt="">
-                                    <div>
+                                    <div class="d-none flex-lg-column animate__animated p-3">
                                         <div class="w-100 h-lg-15">
                                             <h1 class="text-end">I AM THE SKRUNKLY</h1>
                                         </div>
-                                        
+                                        <div class="w-100 h-lg-85 d-flex justify-content-center align-items-center">
+                                            
+                                        </div>
                                     </div>
+                                    <img id="versus-ball" src="assets/versus ball.png" alt="" class="d-none">
                                 </div>
                             </div>
                         </div>

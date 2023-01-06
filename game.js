@@ -26,6 +26,7 @@ var lang = {
         "invite": "Invite",
         "versus_first": "Make a character and name it!",
         "versus_fight": "Make a character to beat the opponent!",
+        "done": "done",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -54,6 +55,7 @@ var lang = {
         "invite": "Invitar",
         "versus_first": "Crea a un personaje y dale nombre!",
         "versus_fight": "Crea a un personaje para derrotar al oponente!",
+        "done": "listo"
     }
 }
 
@@ -65,18 +67,18 @@ const gameModes = [
         "gameStyle" : "classic",
         "time-limit-secs" : 40
     },
-    // {
-    //     "name" : "faceoff",
-    //     "desc" : "faceoff_desc",
-    //     "gameStyle" : "versus",
-    //     "time-limit-secs": 40
-    // },
     {
-        "name" : "coming_soon",
-        "desc" : "",
-        "gameStyle" : "none",
-        "time-limit-secs": 0,
-    }
+        "name" : "faceoff",
+        "desc" : "faceoff_desc",
+        "gameStyle" : "versus",
+        "time-limit-secs": 40
+    },
+    // {
+    //     "name" : "coming_soon",
+    //     "desc" : "",
+    //     "gameStyle" : "none",
+    //     "time-limit-secs": 0,
+    // }
 ]
 
 const colors = [
@@ -121,7 +123,12 @@ const widths = [
     20,
     25
 ]
-
+function removeAllChildren(element_) {
+    while(element_.firstElementChild) {
+        element_.removeChild(element_.lastElementChild);
+    }
+}
+    
 const params = new URLSearchParams(window.location.search);
 
 console.log(lang)
@@ -166,6 +173,7 @@ class Game {
         this.roundPlayerMatches = [];
         this.roundPlayerMatchesOriginalIndex = [];
         this.readySet = new Set();
+        this.versusObject = new Set;
         this.current_gamemode = "";
         this.expected_output = "";
         this.waitingToJoin = false;
@@ -369,7 +377,7 @@ class Game {
                         this.game_interface.clearTimeline()
                         this.game_interface.timelineIndex = -1
                         this.game_interface.timelineElementIndex = -1
-                        this.finishGame();
+                        this.finishGame(data.style);
                         break;
 
                     case "doNextFinalElement":
@@ -642,7 +650,14 @@ class Game {
             case "faceoff":
                 return "versus"
                 break;
+            default:
+                return "NOTHING???? Gamemode is " + this.current_gamemode
+                break;
         }
+    }
+
+    cleatVotes() {
+        this.versusObject.clear()
     }
 
     hostNextRound(firstRound) {
@@ -760,7 +775,14 @@ class Game {
         this.startRound(this.makeRoundFromRoundData(hostData), hostData, firstRound)
     }
 
-    startRound(round, roundData, firstRound) {
+    voteVersus(choice) {
+        if(this.is_host && !this.readySet.has(this.peer.id)) {
+            this.votes[choice]++
+            this.handleVersusReady(this.peer.id, choice)
+        }
+    }
+
+    startRound(round, roundData, firstRound) {        
         console.log("Startround with data " + roundData)
         this.game_interface.resetOutputDiv();
         this.game_interface.resetInputDiv();
@@ -862,8 +884,8 @@ class Game {
             this.playerConns[i].send({
                 "error" : false,
                 "type": "gameResults",
-                "gameResults": this.gameResults,
-                "style": style
+                "style": style,
+                "gameResults": this.gameResults
             });
         }
         console.log("Calling it with " + style)
@@ -901,6 +923,7 @@ class Game {
     }
 
     sendAddFinalsEnd() {
+        this.votes = [0, 0]
         for(let i = 0; i < this.playerConns.length; i++) {
             this.playerConns[i].send({
                 "error" : false,
@@ -933,6 +956,27 @@ class Game {
             }
         }
         this.tryToStartNextRound();
+    }
+
+    handleVersusReady(peerId, choice) {
+        if(this.current_gamemode != "versus" || !this.is_host) return
+        if(!this.versusObject.has(peerId)) {
+            this.versusObject.add(choice)
+        }
+        if(this.versusObject.size == this.players.length) {
+            if(this.votes[0] > this.votes[1]) {
+                this.last_victory = "l"
+            } else if(this.votes[0] < this.votes[1]) {
+                this.last_victory = "r"
+            } else {
+                let choices = ["l", "r"];
+                this.last_victory = choices[Math.floor(Math.random() * 2)]
+            }
+            this.game_interface.doNextFinalElement(true)
+            this.votes[0] = 0
+            this.votes[1] = 0
+            this.versusObject.clear()
+        }
     }
     
     getOutputData() {
@@ -1076,7 +1120,8 @@ class GameInterface {
         this.canvas = document.getElementById("main-canvas");
         this.finalsDiv = document.getElementById("finals-div");
         this.chatHolder = document.getElementById("chat-holder");
-        this.versusHolder = document.getElementById("versus-holder");
+        this.versusHolder = document.getElementById("versus-holder");        
+        this.versusBall = document.getElementById("versus-ball");        
         this.colorHolder = document.getElementById("color-holder");
         this.widthHolder = document.getElementById("width-holder");
         this.canvasHolder = document.getElementById("canvas-holder");
@@ -1292,30 +1337,70 @@ class GameInterface {
         })
         this.widthHolder.appendChild(but);
 
-
+        
         //this.canvas.style.position = 'fixed';
-
+        
         // get canvas 2D context and set him correct size
         var ctx = this.canvas.getContext('2d');
         resize();
-
+        
         // last known position
         var pos = { x: 0, y: 0 };
-
+        
         window.addEventListener('resize', resize);
-        this.canvas.addEventListener('mousemove', draw);
-        this.canvas.addEventListener('mousedown', (e) => {
+        
+
+        function handleCanvasTouch(event) {
+            console.log("doin a touchmove")
+            if(e.touches.length) {
+                console.log("preventdefault at touchmove function")
+                e.preventDefault()
+                var touch = e.touches[0];
+                var mouseEvent = new MouseEvent("mousemove", {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                g_interface.canvas.dispatchEvent(mouseEvent);
+            }
+        }
+        
+        function startDrawing(event) {
+            document.addEventListener("mousemove", draw);            
+        }
+        function startDrawingTouch(event) {            
+            document.addEventListener('touchmove', draw);        
+            document.addEventListener("touchmove", handleCanvasTouch, false);
+        }
+
+        function endDrawing(event) {
+            document.removeEventListener("mousemove", draw);
+        }
+        function endDrawingTouch(event) {            
+            document.removeEventListener('touchmove', draw);        
+            document.removeEventListener("touchmove", handleCanvasTouch);
+        }
+
+        document.addEventListener('mousedown', (e) => {
+            startDrawing(e);
             setPosition(e);
             draw(e);
         });
+        document.addEventListener('touchstart', (e) => {
+            startDrawingTouch(e);
+            setPosition(e);
+            draw(e);
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            endDrawing(e);
+        });
+        document.addEventListener('touchend', (e) => {
+            endDrawingTouch(e);        
+        });
+
         this.canvas.addEventListener('mouseenter', setPosition);
-
-
-        this.canvas.addEventListener('touchstart', (e) => {
-            setPosition(e);
-            draw(e);
-        });
-        this.canvas.addEventListener('touchmove', draw);
+        
+        
         //canvas.addEventListener('touchend', handleDrawingEnd);
 
         // new position from mouse event
@@ -1329,19 +1414,6 @@ class GameInterface {
             pos.y = (e.clientY || e.touches[0].clientY) - rect.top;
         }
 
-        this.canvas.addEventListener("touchmove", function (e) {
-            console.log("doin a touchmove")
-            if(e.touches.length) {
-                console.log("preventdefault at touchmove function")
-                e.preventDefault()
-                var touch = e.touches[0];
-                var mouseEvent = new MouseEvent("mousemove", {
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                });
-                g_interface.canvas.dispatchEvent(mouseEvent);
-            }
-        }, false);
 
         this.canvasWidth = this.canvas.clientWidth;
         this.canvasHeight = this.canvas.clientHeight;
@@ -1357,18 +1429,18 @@ class GameInterface {
         }
 
         function draw(e) {
-            console.log("Attempting to draw")
+            //console.log("Attempting to draw")
             // mouse left button must be pressed
             
             if (!(e.buttons === 1 || (e.touches && e.touches.length))) return;
-            console.log("ok now draw")
+            //console.log("ok now draw")
 
             ctx.beginPath(); // begin
 
             ctx.lineWidth = g_interface.strokeWidth;
             ctx.lineCap = 'round';
             ctx.strokeStyle = g_interface.color;
-            console.log(g_interface.strokeWidth, g_interface.color)
+            //console.log(g_interface.strokeWidth, g_interface.color)
 
             ctx.moveTo(pos.x, pos.y); // from
             setPosition(e);
@@ -1424,6 +1496,7 @@ class GameInterface {
         document.getElementById("game-results").textContent = lang[language]['game_results']
         document.getElementById("invite-label").textContent = lang[language]['invite']
         document.getElementById("start-lobby-label").textContent = lang[language]['start']
+        document.getElementById("output-button").textContent = lang[language]['done']
     }
     
     changeGameListFocus(index) {        
@@ -1699,16 +1772,16 @@ class GameInterface {
     inputHideDrawing() {
         this.inputDrawDiv.classList.add("d-none");
         this.inputDrawDiv.classList.remove("d-flex");
-        while(this.inputDrawDiv.firstChild) {
-            this.inputDrawDiv.removeChild(this.inputDrawDiv.lastChild);
+        while(this.inputDrawDiv.firstElementChild) {
+            this.inputDrawDiv.removeChild(this.inputDrawDiv.lastElementChild);
         }
     }
 
     outputHideDrawing() {
         this.outputImgDiv.classList.add("d-none");
         this.outputImgDiv.classList.remove("d-flex");
-        while(this.outputImgDiv.firstChild) {
-            this.outputImgDiv.removeChild(this.outputImgDiv.lastChild);
+        while(this.outputImgDiv.firstElementChild) {
+            this.outputImgDiv.removeChild(this.outputImgDiv.lastElementChild);
         }
     }
 
@@ -1749,14 +1822,19 @@ class GameInterface {
             this.versusHolder.classList.add("d-none");
             document.getElementById("game-results").classList.remove("d-none")
         } else if(style == "versus") {
+            document.getElementById("game-results").classList.add("d-none")
             this.chatHolder.classList.add("d-none");
             this.chatHolder.classList.remove("d-flex");
             this.versusHolder.classList.add("d-flex");
             this.versusHolder.classList.remove("d-none");
-            document.getElementById("game-results").classList.add("d-none")
+            this.handleVersusFinals()
         }
         this.rockyNoise.load();
-        this.rockyNoise.play();      
+        this.rockyNoise.play();
+    }
+
+    handleVersusFinals() {
+        
     }
 
     finishGame(style) {
@@ -1812,18 +1890,41 @@ class GameInterface {
             this.addFinalsEnd();
             return;
         }
+        let dir;
+        let pos;
+        if(this.game.current_gamemode == "classic") {
+            dir = ((this.timelineElementIndex % 2) == 0) ? "l" : "r";
+            pos = this.chatHolder
+        } else if(this.game.current_gamemode == "faceoff"){
+            pos = this.versusHolder
+
+            if(this.game.last_victory) {
+                dir = this.game.last_victory;
+            }
+            else {
+                dir = ((this.timelineElementIndex % 2) == 0) ? "l" : "r";
+            }
+        }
+        
+
         console.log("Adding element from timeline " + this.timelineIndex + ", element " + this.timelineElementIndex)
         this.bubblyNoise.load()
         this.bubblyNoise.play()
         this.addFinishElement(this.game.gameResults[this.timelineIndex][this.timelineElementIndex],
-            this.chatHolder,
-            ((this.timelineElementIndex % 2) == 0) ? "l" : "r");
+            pos,
+            dir,
+            (this.timelineElementIndex >= 2),
+            this.timelineElementIndex >= 1);
 
     }
 
     clearTimeline() {
-        while(this.chatHolder.firstChild) {
-            this.chatHolder.removeChild(this.chatHolder.lastChild);
+        if(this.game.current_gamemode == "classic") {
+            while(this.chatHolder.firstElementChild) {
+                this.chatHolder.removeChild(this.chatHolder.lastElementChild);
+            }
+        } else {
+            this.game.last_victory = null
         }
     }
 
@@ -1871,7 +1972,93 @@ class GameInterface {
         }
     }
 
-    addFinishElement(element, pos, direction) {
+    
+
+    addFinishElement(element, pos, direction, removeLast = false, startRound = false) {
+        switch(this.game.current_gamemode) {
+            case "classic":
+                this.addClassicElement(element, pos, direction);
+                break;
+            case "faceoff":
+                var el
+                console.log("DIRECTION IS " + direction)
+                if(direction == "l") {
+                    el = pos.firstElementChild.firstElementChild
+                } else {
+                    el = pos.firstElementChild.children[1]
+                }
+                if(removeLast) {
+                    if(direction == "l") {
+                        el.classList.remove("animate__fadeInLeftBig")                    
+                        el.classList.add("animate__fadeOutLeftBig")                   
+                    } else {
+                        el.classList.remove("animate__fadeInRightBig")
+                        el.classList.add("animate__fadeOutRightBig")
+                    }
+                    setTimeout(() => {
+                        this.addVersusElement(element, el, direction, startRound)
+                    }, 1400);
+                } else {
+                    this.addVersusElement(element, el, direction, startRound)
+                }
+                break;
+        }
+    }
+
+    addVersusElement(element, pos, direction, startRound) {
+        var parser = new DOMParser();
+        console.log("pos is " + pos)
+        pos.firstElementChild.firstElementChild.textContent = element.write
+        removeAllChildren(pos.lastElementChild)
+        
+        var memePng = document.createElement('img');
+        memePng.src = element.draw;
+        // memePng.classList.add("drawing-finals-style")
+        memePng.classList.add("drawing-fit")
+        memePng.classList.add("w-100")        
+        memePng.classList.add("mh-100")
+        pos.lastElementChild.appendChild(memePng);
+
+        pos.classList.remove("animate__fadeOutLeftBig")
+        pos.classList.remove("animate__fadeOutRightBig")
+        if(direction == "l") {
+            pos.classList.add("animate__fadeInLeftBig")
+        } else {
+            pos.classList.add("animate__fadeInRightBig")
+        }
+        pos.classList.add("d-flex")
+        pos.classList.remove("d-none")
+        if(startRound) {
+
+            setTimeout(() => {
+                this.startVersusRound()            
+            }, 1400);
+        } else {
+            setTimeout(() => {
+                this.doNextFinalElement()
+            }, 1000)
+        }
+    }
+
+    voteVersus(choice) {
+        this.game.voteVersus(choice)
+    }
+
+    startVersusRound() {
+        // this.versusHolder.classList.add("animate__heartBeat")
+        this.versusBall.classList.remove("d-none")
+        this.versusHolder.firstElementChild.firstElementChild.classList.add("animate-headbutt-left")
+        this.versusHolder.firstElementChild.children[1].classList.add("animate-headbutt-right")
+        setTimeout(() => {
+            this.versusHolder.firstElementChild.classList.add("gallery-active")
+            // this.versusHolder.firstElementChild.firstElementChild.classList.remove("w-50")
+            // this.versusHolder.firstElementChild.lastElementChild.classList.remove("w-50")
+            this.versusHolder.firstElementChild.firstElementChild.addEventListener("click",this.voteVersus(0))
+            this.versusHolder.firstElementChild.children[1].addEventListener("click",this.voteVersus(1))
+        }, 2400);
+    }
+
+    addClassicElement(element, pos, direction) {
         var parser = new DOMParser();
         var res = document.createElement('div')
         res.classList.add('animate__bounceIn')
@@ -1910,7 +2097,7 @@ class GameInterface {
         }
         
         if(element.write) {    
-            res.classList.add("h-20");
+            //res.classList.add("h-20");
             res.classList.add("d-flex");
             if(direction == "r") {
                 res.classList.add("flex-row-reverse");
@@ -1962,7 +2149,6 @@ class GameInterface {
             contentDiv.appendChild(memePng);
         }
     }
-
     
 }
 
