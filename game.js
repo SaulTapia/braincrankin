@@ -1545,7 +1545,8 @@ class GameInterface {
             }
         });
         document.addEventListener('touchstart', (e) => {
-            if(e.target == g_interface.canvas) {                
+            if(e.target == g_interface.canvas) {
+                e.preventDefault()        
                 console.log("Yup! Touchstart")
                 startDrawingTouch(e);
                 setPosition(e);
