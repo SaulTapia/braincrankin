@@ -17,7 +17,9 @@
     --maroon: #bf1363ff;
     --maroon-transparent: rgba(191, 19, 99, 0.743);
 }
-
+body {
+    overscroll-behavior: contain;
+}
 html {
     font-family: myFont !important;
     max-width: 100vw; 
