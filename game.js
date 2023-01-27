@@ -73,12 +73,12 @@ const gameModes = [
         "gameStyle" : "versus",
         "time-limit-secs": 40
     },
-    // {
-    //     "name" : "coming_soon",
-    //     "desc" : "",
-    //     "gameStyle" : "none",
-    //     "time-limit-secs": 0,
-    // }
+    {
+        "name" : "coming_soon",
+        "desc" : "",
+        "gameStyle" : "none",
+        "time-limit-secs": 0,
+    }
 ]
 
 const colors = [
@@ -151,6 +151,90 @@ class Player
     }
 }
 
+class OrderedPeer
+{
+    constructor() {
+        this.peer = new Peer();
+        this.currently_expecting = 0;
+        this.biggest_current = -1;
+        this.present_object = {};
+        this.id = this.peer.id;        
+    }
+
+    on(event, callback) {
+        if(event == "connection") {
+            this.peer.on(event, (conn) => {
+                let wrappedConn = new ConnWrapper(conn)
+                callback(wrappedConn)
+            })
+        } else {
+            this.peer.on(event, callback)
+        }
+    }
+
+    connect(id, metadata) {
+        return new ConnWrapper(this.peer.connect(id, metadata))
+    }
+
+    destroy() {
+        this.peer.destroy()
+    }
+
+    reconnect() {
+        this.peer.reconnect()
+    }
+}
+
+class ConnWrapper
+{
+    constructor(conn) {
+        this.conn = conn
+        this.next_send = 1
+        this.currently_expecting = 1
+        this.dataObject = {}
+        this.dataCallback = () => {}
+        this.metadata = conn.metadata
+        this.peer = conn.peer
+
+        this.conn.on("data", (data) => {
+            console.log("RECEIVED DATA!")
+            console.log(data)
+            if(data.data_id) {
+                this.dataObject[data.data_id] = data
+                console.log("DataObject currently looks like: ")
+                console.log(this.dataObject)
+                while(this.dataObject[this.currently_expecting]) {
+                    console.log("We have an ID " + this.currently_expecting)
+                    this.dataCallback(this.dataObject[this.currently_expecting])
+                    delete this.dataObject[this.currently_expecting++]
+                }
+            }
+        })
+    }
+
+    get open() {
+        return this.conn.open
+    }
+
+    send(data) {
+        data["data_id"] = this.next_send++
+        console.log("ALTERED DATA, IT'S NOW: ")
+        console.log(data)
+        this.conn.send(data)
+    }
+
+    close() {
+        this.conn.close()
+    }
+
+    on(str, callback) {
+        if(str == "data") {
+            this.dataCallback = callback;
+        } else {
+            this.conn.on(str, callback)
+        }
+    }
+}
 
 class Game {
     constructor() {
@@ -164,7 +248,7 @@ class Game {
         this.name = "";
         this.is_host = false;
         this.id = "";
-        this.peer = new Peer();
+        this.peer = new OrderedPeer();
         this.playerConns = []
         this.players = [];
         this.roundList = [];
@@ -173,7 +257,7 @@ class Game {
         this.roundPlayerMatches = [];
         this.roundPlayerMatchesOriginalIndex = [];
         this.readySet = new Set();
-        this.versusObject = new Set;
+        this.versusObject = new Set();
         this.current_gamemode = "";
         this.expected_output = "";
         this.waitingToJoin = false;
@@ -216,6 +300,7 @@ class Game {
     }
 
     sendUpdatePlayers() {
+        console.log("Sending updateplayers to all of em")
         for(var i = 0; i < this.playerConns.length; i++) {
             this.playerConns[i].send({
                 "error" : false,
@@ -305,8 +390,8 @@ class Game {
                 }
             })
             game.waitingToJoin = true;    
-            this.conn_to_host.on("open", () => {
-                console.log("Opened connection")
+            this.conn_to_host.on("open", (conn) => {
+                console.log("Opened connection")                
                 game.waitingToJoin = false;
                 resolve()
             })
@@ -358,6 +443,7 @@ class Game {
                         break;
                     
                     case "startCountDown":
+                        this.current_gamemode = data.gamemode;
                         game.game_interface.startCountDown();
                         console.log("start countdown!!")
                         break;                                        
@@ -387,7 +473,11 @@ class Game {
                             this.game_interface.clearTimeline();
                         }
                         console.log("Calling doNextFinalElement from peer socket")
-                        this.game_interface.doNextFinalElement();
+                        if(data.winner) {
+                            this.game_interface.doNextFinalElement(false, data.winner);
+                        } else {
+                            this.game_interface.doNextFinalElement()
+                        }
                         break;
                     
                     case "showContentDiv":
@@ -410,9 +500,9 @@ class Game {
         this.players.push(new Player(this.peer.id, this.name, true));
         this.game_interface.updatePlayers()
         console.log("Chose to be host!")
-        this.peer.on('connection', function(conn) {
+        this.peer.on('connection', function(conn) {            
             console.log("connection startedd")
-            conn.on('open', () => {
+            conn.on('open', () => {                            
                 console.log("correct???")
                 console.log(conn.metadata)
                 if(!Object.hasOwn(conn.metadata, 'name')) {
@@ -470,6 +560,11 @@ class Game {
                     game.playerConns.push(conn);
                     console.log("defined data thingy")
                     conn.on('data', (data) => {
+                        // if(data.num - 1 == this.last_data) {
+                        //     this.last_data = data.num
+                        // } else {
+                            
+                        // }
                         console.log("GOT DATA")
                         console.log(data)
                         if('type' in data) {
@@ -479,6 +574,7 @@ class Game {
                                     game.players = game.players.filter((element) => element.peerId != conn.peer)
                                     game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
                                     game.readySet.delete(conn.peer)
+                                    game.versusObject.delete(conn.peer)
                                     game.sendUpdatePlayers();
                                     if(game.game_started) {
                                         game.tryToStartNextRound()
@@ -487,6 +583,10 @@ class Game {
                                 
                                 case 'ready':
                                     game.handleReady(conn.peer, data.outputData, false);
+                                    break;
+                                case 'versusVote':
+                                    game.handleVersusReady(conn.peer, data.choice)
+                                    break
                             
                                 default:
                                     break;
@@ -527,12 +627,13 @@ class Game {
         });
     }
 
-    sendCountDown() {
+    sendCountDown(gamemode) {
         this.game_started = true;
         for(var i = 0; i < this.playerConns.length; i++) {
             this.playerConns[i].send({
                 "error" : false,
                 "type" : "startCountDown",
+                "gamemode": gamemode.name,
             })
         }
         this.game_interface.startCountDown();
@@ -776,9 +877,17 @@ class Game {
     }
 
     voteVersus(choice) {
-        if(this.is_host && !this.readySet.has(this.peer.id)) {
+        console.log("Da voteversus from ze game")
+        console.log(this.versusObject.entries())
+        if(this.is_host && !this.versusObject.has(this.peer.id)) {
             this.votes[choice]++
             this.handleVersusReady(this.peer.id, choice)
+        } else if (!this.is_host) {
+            console.log("SENDING [democratic vote]!!!!!!!")
+            this.conn_to_host.send({
+                "type": "versusVote",
+                "choice": choice,
+            })
         }
     }
 
@@ -866,7 +975,7 @@ class Game {
 
     tryToStartNextRound() {
         console.log(this.readySet.size + " ready, need " + this.players.length)
-        if(this.readySet.size == this.players.length) {
+        if(this.readySet.size >= this.players.length) {
             this.rotateArrayRight(this.roundPlayerMatches);
             this.rotateArrayRight(this.roundPlayerMatchesOriginalIndex);
             this.self_match_index++;
@@ -911,14 +1020,25 @@ class Game {
         }
     }
 
-    sendDoNextFinalElement(resetTimeline) {
+    sendDoNextFinalElement(resetTimeline, winner) {
         console.log("Sending DoNextFinalElement!")
-        for(let i = 0; i < this.playerConns.length; i++) {
-            this.playerConns[i].send({
-                "error" : false,
-                "type": "doNextFinalElement",
-                "resetTimeline": resetTimeline
-            });
+        if(winner) {
+            for(let i = 0; i < this.playerConns.length; i++) {
+                this.playerConns[i].send({
+                    "error" : false,
+                    "type": "doNextFinalElement",
+                    "resetTimeline": resetTimeline,
+                    "winner": winner
+                });
+            }
+        } else {
+            for(let i = 0; i < this.playerConns.length; i++) {
+                this.playerConns[i].send({
+                    "error" : false,
+                    "type": "doNextFinalElement",
+                    "resetTimeline": resetTimeline
+                });
+            }
         }
     }
 
@@ -959,11 +1079,13 @@ class Game {
     }
 
     handleVersusReady(peerId, choice) {
-        if(this.current_gamemode != "versus" || !this.is_host) return
+        console.log("Handling versus ready of peer with id: " + peerId)
+        if(this.current_gamemode != "faceoff" || !this.is_host || choice < 0 || choice > 1) return
         if(!this.versusObject.has(peerId)) {
-            this.versusObject.add(choice)
+            this.versusObject.add(peerId)
         }
-        if(this.versusObject.size == this.players.length) {
+        console.log("As it stands, the versusObject looks like this " + Array.from(this.versusObject.values()))
+        if(this.versusObject.size >= this.players.length) {
             if(this.votes[0] > this.votes[1]) {
                 this.last_victory = "l"
             } else if(this.votes[0] < this.votes[1]) {
@@ -972,9 +1094,11 @@ class Game {
                 let choices = ["l", "r"];
                 this.last_victory = choices[Math.floor(Math.random() * 2)]
             }
+            console.log("Calling doNextFinalElement from handleVersusReady")
             this.game_interface.doNextFinalElement(true)
             this.votes[0] = 0
             this.votes[1] = 0
+            console.log("CLEARING DA VERSUSOBJECTTTTTTTTTTTTT")
             this.versusObject.clear()
         }
     }
@@ -1018,7 +1142,7 @@ class Game {
     leaveGame() {
         this.close_conn(this.conn_to_host)
         this.peer.destroy();
-        this.peer = new Peer();
+        this.peer = new OrderedPeer();
         game.game_interface.hostButton.disabled = true;
         var setup_peer = (id) => {
             game.id = id;
@@ -1029,7 +1153,7 @@ class Game {
             }
         }
 
-        this.peer.on('open', function(id) {
+        this.peer.on('open', function(id) {            
             setup_peer(id);
         });
         this.peer.on('close', function(id) {
@@ -1058,7 +1182,7 @@ class Game {
         var game = this;
         console.log("Stop hosting")
         this.peer.destroy()
-        this.peer = new Peer();
+        this.peer = new OrderedPeer();
         game.game_interface.hostButton.disabled = true;
         var setup_peer = (id) => {
             game.id = id;
@@ -1069,7 +1193,7 @@ class Game {
             }
         }
 
-        this.peer.on('open', function(id) {
+        this.peer.on('open', function(id) {            
             setup_peer(id);
         });    
     }
@@ -1104,6 +1228,12 @@ class GameInterface {
         this.listRowChildren = this.gameListRow.children;
         this.countDownNumber = document.getElementById("countdownModalLabel");
         this.countdownModal = document.getElementById("countdownModal");
+        this.versusModal = new bootstrap.Modal('#versusModal', {
+            keyboard: false
+        })
+        this.versusModalLabel = document.getElementById("versusModalLabel")
+        this.versusModalImg = document.getElementById("versusModalImg")
+          
         this.inputDiv = document.getElementById("input-div");
         this.inputWriteDiv = document.getElementById("input-write-div");
         this.inputDrawDiv = document.getElementById("input-draw-div");
@@ -1126,7 +1256,9 @@ class GameInterface {
         this.widthHolder = document.getElementById("width-holder");
         this.canvasHolder = document.getElementById("canvas-holder");
         this.topBar = document.getElementById("top-bar");
-        this.mainContainer = document.getElementById("main-container");
+        this.mainContainer = document.getElementById("main-container");        
+        this.dismissVersusModalBtn = document.getElementById("dismissVersusModalBtn");
+        // this.canvasBackground = document.getElementById("canvas-background")
         this.set_canvas = false;
         console.log("it be this:")
         console.log(this.widthHolder)
@@ -1137,7 +1269,7 @@ class GameInterface {
                 console.log(text, typeof(text))
             });
         })
-
+        
         this.beep = new Audio('assets/beep.wav');
         this.finalBeep = new Audio('assets/finalBeep.wav');
         this.bubblyNoise = new Audio('assets/bubblynoise.mp3');
@@ -1145,7 +1277,20 @@ class GameInterface {
         this.hostButton.disabled = true;
         this.startButton.disabled = true;
         
+        this.dismissVersusModalBtn.addEventListener("click", () => {
+            this.clearTimeline();
+            this.versusBall.classList.add("d-none")
+            this.timelineElementIndex = -1;            
 
+            if(this.timelineIndex >= this.game.gameResults.length) {
+                this.timelineIndex = -1;
+                this.game.hostSendBackToLobby();                
+            } else {
+                console.log("Calling from button press??")
+                this.game.sendDoNextFinalElement(true, "l")
+                this.doNextFinalElement(false);
+            }
+        })
         this.outputButton.addEventListener("click", () => {
             if(this.game.expected_output == "write") {
                 if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
@@ -1348,13 +1493,15 @@ class GameInterface {
         var pos = { x: 0, y: 0 };
         
         window.addEventListener('resize', resize);
+        let hasListener = false
         
 
-        function handleCanvasTouch(event) {
-            console.log("doin a touchmove")
-            if(e.touches.length) {
-                console.log("preventdefault at touchmove function")
-                e.preventDefault()
+        function handleCanvasTouch(e) {
+            console.log("doin a touchmove with event ")  
+            console.log(e)          
+            if(e.touches && e.touches.length) {
+                e.preventDefault();
+                console.log("preventdefault at touchmove function")                
                 var touch = e.touches[0];
                 var mouseEvent = new MouseEvent("mousemove", {
                     clientX: touch.clientX,
@@ -1365,36 +1512,52 @@ class GameInterface {
         }
         
         function startDrawing(event) {
-            document.addEventListener("mousemove", draw);            
+            if(!hasListener) {
+                document.addEventListener("mousemove", draw);
+                hasListener = true;
+            }
+
         }
         function startDrawingTouch(event) {            
-            document.addEventListener('touchmove', draw);        
-            document.addEventListener("touchmove", handleCanvasTouch, false);
+            if(!hasListener) {
+                document.addEventListener('touchmove', draw);        
+                document.addEventListener("touchmove", handleCanvasTouch, false);
+                hasListener = true
+            }
         }
 
         function endDrawing(event) {
             document.removeEventListener("mousemove", draw);
+            hasListener = false;
         }
         function endDrawingTouch(event) {            
             document.removeEventListener('touchmove', draw);        
             document.removeEventListener("touchmove", handleCanvasTouch);
+            hasListener = false
         }
-
+        
         document.addEventListener('mousedown', (e) => {
-            startDrawing(e);
-            setPosition(e);
-            draw(e);
+            if(e.target == g_interface.canvas) {
+                console.log("IT'S HAPPENING WITH DA MOUS")
+                startDrawing(e);
+                setPosition(e);
+                draw(e);
+            }
         });
         document.addEventListener('touchstart', (e) => {
-            startDrawingTouch(e);
-            setPosition(e);
-            draw(e);
+            if(e.target == g_interface.canvas) {                
+                console.log("Yup! Touchstart")
+                startDrawingTouch(e);
+                setPosition(e);
+                draw(e);
+            }
         });
 
         document.addEventListener('mouseup', (e) => {
             endDrawing(e);
         });
-        document.addEventListener('touchend', (e) => {
+        document.addEventListener('touchend touchcancel', (e) => {
+            console.log("END, OVER, BOOP")
             endDrawingTouch(e);        
         });
 
@@ -1407,7 +1570,7 @@ class GameInterface {
         function setPosition(e) {
             if(e.touches && e.touches.length) {
                 console.log(e)
-                e.preventDefault();
+                //e.preventDefault();
             }
             var rect = g_interface.canvas.getBoundingClientRect();
             pos.x = (e.clientX || e.touches[0].clientX) - rect.left;
@@ -1421,10 +1584,17 @@ class GameInterface {
             if (g_interface.canvas.clientWidth != g_interface.canvasWidth || 
                 g_interface.canvas.clientHeight != g_interface.canvasHeight) {
                 console.log(g_interface.canvas.clientWidth + " != " + g_interface.canvasWidth)
+                var imageData = ctx.canvas.toDataURL("image/png")
                 ctx.canvas.width = g_interface.canvas.clientWidth;
                 ctx.canvas.height = g_interface.canvas.clientHeight;                
                 g_interface.canvasWidth = g_interface.canvas.clientWidth;
                 g_interface.canvasHeight = g_interface.canvas.clientHeight;
+
+                var finalImage = new Image;
+                finalImage.onload = function() {
+                    ctx.drawImage(finalImage, 0, 0);
+                }
+                finalImage.src = imageData
             }                        
         }
 
@@ -1433,7 +1603,7 @@ class GameInterface {
             // mouse left button must be pressed
             
             if (!(e.buttons === 1 || (e.touches && e.touches.length))) return;
-            //console.log("ok now draw")
+            //console.log("ok now draw")            
 
             ctx.beginPath(); // begin
 
@@ -1497,6 +1667,7 @@ class GameInterface {
         document.getElementById("invite-label").textContent = lang[language]['invite']
         document.getElementById("start-lobby-label").textContent = lang[language]['start']
         document.getElementById("output-button").textContent = lang[language]['done']
+        document.getElementById("dismissVersusModalBtn").textContent = lang[language]['done']
     }
     
     changeGameListFocus(index) {        
@@ -1536,6 +1707,7 @@ class GameInterface {
 
     gameLobby() {
         this.game.game_started = false;
+        this.clearTimeline()
         this.game.name = this.nameBox.value
         this.quitButton.classList.add("animate__bounceIn")
         this.quitButton.style.display = 'block'
@@ -1550,7 +1722,8 @@ class GameInterface {
         this.lobbyGames.classList.add("animate__bounceIn");
         this.mainContainer.classList.add("h-lg-90")
         this.topBar.classList.add("d-lg-flex")
-
+        
+        this.versusModal.hide()
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
@@ -1606,6 +1779,7 @@ class GameInterface {
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
+        this.versusModal.hide()
         console.log("main menu")
         //if(this.game.is_host) this.game.stop_hosting();
         //else if(this.game.in_lobby) {
@@ -1676,12 +1850,16 @@ class GameInterface {
         var pngImage = document.createElement('img')
         pngImage.src = draw;
         pngImage.classList.add("drawing-style")
-        this.inputDrawDiv.appendChild(pngImage);
+        this.inputDrawDiv.appendChild(pngImage);        
+        // if(this.game.current_gamemode == "faceoff") {
+        //     this.canvasBackground.src = draw
+        // }
         console.log("Append " + pngImage);
         console.log("Appended to " + this.inputDrawDiv)
     }
     
     resetInputDiv() {
+        // this.canvasBackground.src = ""
         this.inputDrawDiv.classList.add('d-none');
         this.inputDrawDiv.classList.remove('d-flex');
         this.inputWriteDiv.classList.add('d-none');
@@ -1843,24 +2021,30 @@ class GameInterface {
         this.hideOutputDiv();
         this.showFinalsDiv(style);
         this.timelineElementIndex = -1;
-        this.timelineIndex = -1;
+        this.timelineIndex = -1;        
         if(this.game.is_host) {
+            this.game.votes = [0, 0]
             setTimeout(() => {
                 this.doNextFinalElement()
                 console.log("Calling from finishGame")
-            }, 800)
+            }, 1000)
         }
     }
     
-    doNextFinalElement(send = true) {
+    doNextFinalElement(send = true, winner) {
         console.log("=================================================")
         console.log("Call showContentDiv from nextFinalElement")
+        if(winner) {
+            this.game.last_victory = winner
+        }
+
         console.log(this.timelineIndex, this.timelineElementIndex)
         this.showContentDiv();
         if(send && this.game.is_host) {
-            this.game.sendDoNextFinalElement(false);
+            this.game.sendDoNextFinalElement(false, this.game.last_victory);
         }
         if(this.timelineIndex >= this.game.gameResults.length) {
+            console.log("Calling addFinalsEnd from the first check")
             this.addFinalsEnd();
             return;
         }
@@ -1881,12 +2065,14 @@ class GameInterface {
 
 
         if(this.timelineIndex >= this.game.gameResults.length) {
+            console.log("Calling addFinalsEnd from the second check")
             this.addFinalsEnd();
             return;
         }
 
         if(changedTimeline) {
             console.log("CHANGE TIMELINESSS")
+            console.log("Calling addFinalsEnd from the changed timelines check")
             this.addFinalsEnd();
             return;
         }
@@ -1895,14 +2081,13 @@ class GameInterface {
         if(this.game.current_gamemode == "classic") {
             dir = ((this.timelineElementIndex % 2) == 0) ? "l" : "r";
             pos = this.chatHolder
-        } else if(this.game.current_gamemode == "faceoff"){
+        } else if(this.game.current_gamemode == "faceoff") {
+            this.versusModal.hide()
             pos = this.versusHolder
-
-            if(this.game.last_victory) {
-                dir = this.game.last_victory;
-            }
-            else {
+            if(this.timelineElementIndex < 2 || !this.game.last_victory) {
                 dir = ((this.timelineElementIndex % 2) == 0) ? "l" : "r";
+            } else {                
+                dir = (this.game.last_victory == "l") ? "r" : "l";
             }
         }
         
@@ -1924,12 +2109,58 @@ class GameInterface {
                 this.chatHolder.removeChild(this.chatHolder.lastElementChild);
             }
         } else {
-            this.game.last_victory = null
+            this.game.last_victory = "l"
+            let pos = this.versusHolder
+            pos.firstElementChild.firstElementChild.classList.remove("animate__fadeInLeftBig")
+            pos.firstElementChild.children[1].classList.remove("animate__fadeInRightBig")
+
+            pos.firstElementChild.firstElementChild.classList.remove("animate-headbutt-left")
+            pos.firstElementChild.children[1].classList.remove("animate-headbutt-right")
+
+            console.log("DISMISSING EVERYTHING, RE-ADDING D-NONE TO EVERYTHING!!!!!!!!!!!!1")
+            pos.firstElementChild.firstElementChild.classList.add("d-none");
+            pos.firstElementChild.children[1].classList.add("d-none");
+            pos.firstElementChild.firstElementChild.classList.remove("d-flex");
+            pos.firstElementChild.children[1].classList.remove("d-flex");
+            pos.firstElementChild.classList.remove("gallery-active")
         }
     }
 
-    addFinalsEnd() {
+    addFinalsEnd(data) {
         //this.game.sendAddFinalsEnd();
+        switch(this.game.current_gamemode) {
+            case 'classic':
+                this.addClassicEnd()
+                break;
+            case 'faceoff':                
+                this.addVersusEnd();
+        }        
+    }
+
+    addVersusEnd() {
+        let winnerName
+        let winnerImg
+        console.log("last victory was " + this.game.last_victory)
+        if(this.game.last_victory === "r") {
+            winnerName = this.versusHolder.firstElementChild.children[1].firstElementChild.firstElementChild.textContent
+            winnerImg = this.versusHolder.firstElementChild.children[1].lastElementChild.firstElementChild.src
+        } else {
+            winnerName = this.versusHolder.firstElementChild.firstElementChild.firstElementChild.firstElementChild.textContent
+            winnerImg = this.versusHolder.firstElementChild.firstElementChild.lastElementChild.firstElementChild.src
+        }
+        this.versusModalLabel.textContent = winnerName
+        this.versusModalImg.src = winnerImg
+        if(this.game.is_host) {
+            this.dismissVersusModalBtn.classList.remove("d-none");
+            this.dismissVersusModalBtn.classList.add("d-block");
+        } else {
+            this.dismissVersusModalBtn.classList.remove("d-block");
+            this.dismissVersusModalBtn.classList.add("d-none");
+        }
+        this.versusModal.show()
+    }
+
+    addClassicEnd() {
         var element = document.createElement('div')
         element.classList.add("m-3")
         element.classList.add("w-100");
@@ -1950,7 +2181,7 @@ class GameInterface {
                     this.timelineIndex = -1;
                     this.game.hostSendBackToLobby();
                 } else {
-                    console.log("Calling from button press??")
+                    console.log("Calling doNextFinalelement from button press??")
                     this.game.sendDoNextFinalElement(true)
                     this.doNextFinalElement(false);
                 }
@@ -1987,7 +2218,12 @@ class GameInterface {
                 } else {
                     el = pos.firstElementChild.children[1]
                 }
+                console.log("Chose the element:")
+                console.log(el)
                 if(removeLast) {
+                    console.log("WE ART REMOVING LAST!!!!")
+                    pos.classList.remove("animate__fadeOutLeftBig")
+                    pos.classList.remove("animate__fadeOutRightBig")
                     if(direction == "l") {
                         el.classList.remove("animate__fadeInLeftBig")                    
                         el.classList.add("animate__fadeOutLeftBig")                   
@@ -2006,8 +2242,13 @@ class GameInterface {
     }
 
     addVersusElement(element, pos, direction, startRound) {
+        this.versusHolder.firstElementChild.classList.remove("gallery-active")
+
+        this.game.versusObject.clear();
+        this.game.votes = [0, 0]
         var parser = new DOMParser();
-        console.log("pos is " + pos)
+        console.log("pos is ")
+        console.log(pos)
         pos.firstElementChild.firstElementChild.textContent = element.write
         removeAllChildren(pos.lastElementChild)
         
@@ -2016,11 +2257,11 @@ class GameInterface {
         // memePng.classList.add("drawing-finals-style")
         memePng.classList.add("drawing-fit")
         memePng.classList.add("w-100")        
-        memePng.classList.add("mh-100")
+        memePng.classList.add("mh-100")        
         pos.lastElementChild.appendChild(memePng);
 
-        pos.classList.remove("animate__fadeOutLeftBig")
-        pos.classList.remove("animate__fadeOutRightBig")
+        
+
         if(direction == "l") {
             pos.classList.add("animate__fadeInLeftBig")
         } else {
@@ -2028,20 +2269,28 @@ class GameInterface {
         }
         pos.classList.add("d-flex")
         pos.classList.remove("d-none")
+        console.log("ADDED D-FLEX AND REMOVED D-NONE FROM: ")
+        console.log(pos)
         if(startRound) {
-
+            this.versusHolder.firstElementChild.children[0].classList.remove("animate-headbutt-left")        
+            this.versusHolder.firstElementChild.children[1].classList.remove("animate-headbutt-right")
             setTimeout(() => {
                 this.startVersusRound()            
             }, 1400);
-        } else {
+        } else if(this.game.is_host) {
             setTimeout(() => {
+                console.log("Calling doNextFinalElement from host setTimeout")
                 this.doNextFinalElement()
             }, 1000)
         }
     }
+    
 
     voteVersus(choice) {
-        this.game.voteVersus(choice)
+        if(this.expecting_vote) {       
+            this.expecting_vote = false                   
+            this.game.voteVersus(choice)
+        }
     }
 
     startVersusRound() {
@@ -2050,11 +2299,16 @@ class GameInterface {
         this.versusHolder.firstElementChild.firstElementChild.classList.add("animate-headbutt-left")
         this.versusHolder.firstElementChild.children[1].classList.add("animate-headbutt-right")
         setTimeout(() => {
-            this.versusHolder.firstElementChild.classList.add("gallery-active")
+            this.versusHolder.firstElementChild.classList.add("gallery-active")            
             // this.versusHolder.firstElementChild.firstElementChild.classList.remove("w-50")
-            // this.versusHolder.firstElementChild.lastElementChild.classList.remove("w-50")
-            this.versusHolder.firstElementChild.firstElementChild.addEventListener("click",this.voteVersus(0))
-            this.versusHolder.firstElementChild.children[1].addEventListener("click",this.voteVersus(1))
+            // this.versusHolder.firstElementChild.lastElementChild.classList.remove("w-50")            
+            this.versusHolder.firstElementChild.firstElementChild.addEventListener("click",() => {
+                this.voteVersus(0)
+            })
+            this.versusHolder.firstElementChild.children[1].addEventListener("click",() => {
+                this.voteVersus(1)
+            })
+            this.expecting_vote = true
         }, 2400);
     }
 
@@ -2159,3 +2413,17 @@ game.assign_game_interface(game_interface);
 
 let htmlElement = document.getElementsByTagName("html")[0]
 htmlElement.height = window.innerHeight;
+
+
+
+// DEBUG!!!!! DO N O T, UNDER ANY CIRCUMSTANCES, LET THIS GET TO PRODUCTION
+function reloadCss()
+{
+    var links = document.getElementsByTagName("link");
+    for (var cl in links)
+    {
+        var link = links[cl];
+        if (link.rel === "stylesheet")
+            link.href += "";
+    }
+}

@@ -10,9 +10,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=23-12-22">
-    <link rel="stylesheet" href="responsive.css?v=23-12-22">
-    <link rel="stylesheet" href="sass.css?v=23-12-22">
+    <link rel="stylesheet" href="style.css?v=26-01-23">
+    <link rel="stylesheet" href="responsive.css?v=26-01-23">
+    <link rel="stylesheet" href="sass.css?v=26-01-23">
     <title>BrainCrankin</title><!-- CSS only -->
     
 </head>
@@ -74,7 +74,7 @@
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 0.2.2</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 2.0.0</h5>
                 </div>
                 <div id="main-container" class="row h-100 h-lg-90 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
@@ -196,7 +196,7 @@
                         <p id="input-write-div">
 
                         </p>
-                        <div id="input-draw-div">
+                        <div id="input-draw-div" class="mw-100">
 
                         </div>
                         <button id="end-input-btn" class="btn btn-primary">Go!</button>
@@ -217,7 +217,9 @@
                                     </div>
                                 </div>
                                 <div id="canvas-holder" class="drawing-style w-mobile-100 w-lg-90 h-100">
-                                    <canvas id="main-canvas" class="h-100 w-100"></canvas>
+                                    <!-- <img src="" id="canvas-background" alt="" class="drawing-fit"> -->
+                                    <canvas id="main-canvas" class="h-100 w-100">
+                                    </canvas>
                                 </div>
                                 <div id="width-holder" class="w-100 w-lg-15 d-flex flex-row flex-lg-column justify-content-around align-items-center border-lg-main p-1">
                                     
@@ -263,6 +265,23 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal fade" id="versusModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="versusModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content bg-versus-modal">
+                            <div class="modal-header transparent-border-header d-flex justify-content-center">
+                              <h1 class="modal-title fs-5 text-center" id="versusModalLabel">i am de label</h1>
+                              <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                            </div>
+                            <div class="modal-body">
+                                <img class="drawing-fit w-100 mh-100" id="versusModalImg" src="" alt="">                                
+                            </div>
+                            <div class="modal-footer transparent-border-footer" style="justify-content: center">
+                              <button id="dismissVersusModalBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
                 </div>
             </div>
         </div>
@@ -274,10 +293,8 @@
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <!-- JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vivus@latest/dist/vivus.min.js"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=23-12-22"></script>
+    <script src="game.js?v=26-01-23"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>
