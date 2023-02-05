@@ -27,6 +27,7 @@ var lang = {
         "versus_first": "Make a character and name it!",
         "versus_fight": "Make a character to beat the opponent!",
         "done": "done",
+        "edit": "edit",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -55,7 +56,8 @@ var lang = {
         "invite": "Invitar",
         "versus_first": "Crea a un personaje y dale nombre!",
         "versus_fight": "Crea a un personaje para derrotar al oponente!",
-        "done": "listo"
+        "done": "listo",
+        "edit": "editar",
     }
 }
 
@@ -116,6 +118,25 @@ const colors = [
     "#FFDDF4"
 ]
 
+const FULL_DASH_ARRAY = 283;
+const WARNING_THRESHOLD = 10;
+const ALERT_THRESHOLD = 5;
+
+const COLOR_CODES = {
+    info: {
+      color: "green"
+    },
+    warning: {
+      color: "orange",
+      threshold: WARNING_THRESHOLD
+    },
+    alert: {
+      color: "red",
+      threshold: ALERT_THRESHOLD
+    }
+  };
+  
+
 const widths = [
     2,
     5,
@@ -157,8 +178,11 @@ class OrderedPeer
         this.peer = new Peer();
         this.currently_expecting = 0;
         this.biggest_current = -1;
-        this.present_object = {};
-        this.id = this.peer.id;        
+        this.present_object = {};                        
+    }
+    
+    get id() {
+        return this.peer.id
     }
 
     on(event, callback) {
@@ -450,8 +474,8 @@ class Game {
                         
                     case "roundStart":
                         this.startRound(data.round, data.roundData, data.firstRound)
+                        this.roundKey = data.roundKey
                         console.log("start rounddddd!!")
-
                         break;
 
                     case "backToLobby":
@@ -582,11 +606,17 @@ class Game {
                                     break;
                                 
                                 case 'ready':
+                                    console.log("CALLED HANDLEREADY FROM CONN")
                                     game.handleReady(conn.peer, data.outputData, false);
                                     break;
+
+                                case 'unready':
+                                    game.handleUnready(conn.peer, false, data.roundKey)
+
                                 case 'versusVote':
                                     game.handleVersusReady(conn.peer, data.choice)
                                     break
+                                
                             
                                 default:
                                     break;
@@ -596,6 +626,8 @@ class Game {
                     conn.on('close', () => {
                         game.players = game.players.filter((element) => element.peerId != conn.peer)
                         game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
+                        game.readySet.delete(conn.peer)
+                        game.versusObject.delete(conn.peer)
                         game.sendUpdatePlayers();
                         if(game.game_started) {
                             game.tryToStartNextRound()
@@ -605,6 +637,8 @@ class Game {
                         console.warn(error)
                         game.players = game.players.filter((element) => element.peerId != conn.peer)
                         game.playerConns = game.playerConns.filter((element) => element.peer != conn.peer)
+                        game.readySet.delete(conn.peer)
+                        game.versusObject.delete(conn.peer)
                         game.sendUpdatePlayers();                
                         if(game.game_started) {
                             game.tryToStartNextRound()
@@ -854,6 +888,12 @@ class Game {
     sendStartRound(round, firstRound) {
         console.log(this.roundPlayerConns)
         console.log("There are " + this.roundPlayerConns.length + " conns")
+        let characters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
+        this.roundKey = ""
+        for(let i = 0; i < 12; i++) {
+            this.roundKey += characters[Math.floor(Math.random() * characters.length)]
+        }
+
         for(var i = 0; i < this.roundPlayerMatches.length; i++) {
             let ind = this.roundPlayerMatchesOriginalIndex[i]
             console.log("ind: " + ind)
@@ -867,12 +907,14 @@ class Game {
                     "type" : "roundStart",
                     "round" : this.makeRoundFromRoundData(roundData),
                     "roundData" : roundData,
-                    "firstRound" : firstRound
+                    "firstRound" : firstRound,
+                    "roundKey": this.roundKey
                 })
             }            
         }
         console.log("Host has index " + this.self_match_index)
         let hostData = this.getRoundData(this.self_match_index)
+
         this.startRound(this.makeRoundFromRoundData(hostData), hostData, firstRound)
     }
 
@@ -969,6 +1011,15 @@ class Game {
             this.conn_to_host.send({
                 "type": "ready",
                 "outputData": outputData
+            })
+        }
+    }
+
+    sendUnreadyToHost() {
+        if(!this.is_host) {
+            this.conn_to_host.send({
+                "type": "unready",
+                "roundKey": this.roundKey
             })
         }
     }
@@ -1078,6 +1129,30 @@ class Game {
         this.tryToStartNextRound();
     }
 
+    handleUnready(peerId, is_self, key) {
+        console.log(peerId + " is NOT ready!");        
+        if(!is_self && peerId == this.peer.id) {
+            return;
+        }
+        if(!this.readySet.has(peerId) || key != this.roundKey) {
+            return;
+        }
+        this.readySet.delete(peerId);
+        for(let i = 0; i < this.roundPlayerMatches.length; i++) {
+            if(peerId == this.roundPlayerMatches[i].peerId) {
+                console.log(this.roundPlayerMatches[i].name)
+                if(this.gameResults[i].length > 0 && this.gameResults[i][this.gameResults[i].length - 1].roundKey == key) {
+                    this.gameResults[i].pop()
+                }
+                // this.gameResults[i].push({
+                //     "name" : this.roundPlayerMatches[i].name,
+                //     ...outputData
+                // });
+            }
+        }
+        this.tryToStartNextRound();
+    }
+
     handleVersusReady(peerId, choice) {
         console.log("Handling versus ready of peer with id: " + peerId)
         if(this.current_gamemode != "faceoff" || !this.is_host || choice < 0 || choice > 1) return
@@ -1086,21 +1161,26 @@ class Game {
         }
         console.log("As it stands, the versusObject looks like this " + Array.from(this.versusObject.values()))
         if(this.versusObject.size >= this.players.length) {
-            if(this.votes[0] > this.votes[1]) {
-                this.last_victory = "l"
-            } else if(this.votes[0] < this.votes[1]) {
-                this.last_victory = "r"
-            } else {
-                let choices = ["l", "r"];
-                this.last_victory = choices[Math.floor(Math.random() * 2)]
-            }
-            console.log("Calling doNextFinalElement from handleVersusReady")
-            this.game_interface.doNextFinalElement(true)
-            this.votes[0] = 0
-            this.votes[1] = 0
-            console.log("CLEARING DA VERSUSOBJECTTTTTTTTTTTTT")
-            this.versusObject.clear()
+            this.endVersusRound()            
         }
+    }
+
+    endVersusRound() {
+        //this.game_interface.endTimer()
+        if(this.votes[0] > this.votes[1]) {
+            this.last_victory = "l"
+        } else if(this.votes[0] < this.votes[1]) {
+            this.last_victory = "r"
+        } else {
+            let choices = ["l", "r"];
+            this.last_victory = choices[Math.floor(Math.random() * 2)]
+        }
+        console.log("Calling doNextFinalElement from handleVersusReady")
+        this.game_interface.doNextFinalElement(true)
+        this.votes[0] = 0
+        this.votes[1] = 0
+        console.log("CLEARING DA VERSUSOBJECTTTTTTTTTTTTT")
+        this.versusObject.clear()
     }
     
     getOutputData() {
@@ -1108,19 +1188,22 @@ class Game {
             case "write":
                 return {
                     "user": this.name,
-                    "write" : this.game_interface.getOutputWrite() 
+                    "write" : this.game_interface.getOutputWrite(),
+                    "roundKey": this.roundKey,
                 }
             case "draw":
                 return {
                     "user": this.name,
-                    "draw" : this.game_interface.getOutputDraw()
+                    "draw" : this.game_interface.getOutputDraw(),
+                    "roundKey": this.roundKey,
                 }
 
             case "drawAndName":
                 return {
                     "user": this.name,
                     "draw" : this.game_interface.getOutputDraw(),
-                    "write": this.game_interface.getOutputWrite()
+                    "write": this.game_interface.getOutputWrite(),
+                    "roundKey": this.roundKey,
                 }
             
             default:
@@ -1129,9 +1212,19 @@ class Game {
         
     }
 
-    ready() {
-        console.log("the end is upon us")
+    unready() {
         if(this.is_host) {
+            this.handleUnready(this.peer.id, true, this.roundKey)
+        } else {
+            this.sendUnreadyToHost();
+        }
+    }
+
+    ready() {
+        if(this.is_host) {
+            console.log("CALLED HANDLEREADY FROM HOST")
+            console.log(this.peer)
+            console.log(this.peer.id)
             this.handleReady(this.peer.id, this.getOutputData(), true)
         } else {
             this.sendReadyToHost(this.getOutputData());
@@ -1199,6 +1292,73 @@ class Game {
     }
 
 }
+
+function formatTimeLeft(time) {
+    // The largest round integer less than or equal to the result of time divided being by 60.
+    const minutes = Math.floor(time / 60);
+    
+    // Seconds are the remainder of the time divided by 60 (modulus operator)
+    let seconds = time % 60;
+    
+    // If the value of seconds is less than 10, then display seconds with a leading zero
+    if (seconds < 10) {
+      seconds = `0${seconds}`;
+    }
+  
+    // The output in MM:SS format
+    return `${minutes}:${seconds}`;
+}
+
+function setRemainingPathColor(timeLeft) {
+    const { alert, warning, info } = COLOR_CODES;
+    if (timeLeft <= alert.threshold) {
+        document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(info.color);
+        document
+      document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(warning.color);
+      document
+        .getElementById("base-timer-path-remaining")
+        .classList.add(alert.color);
+    } else if (timeLeft <= warning.threshold) {
+      document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(info.color);
+        document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(alert.color);        
+        document
+        .getElementById("base-timer-path-remaining")
+        .classList.add(warning.color);
+    } else {
+        document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(alert.color);
+        document
+        .getElementById("base-timer-path-remaining")
+        .classList.remove(warning.color);
+      document
+        .getElementById("base-timer-path-remaining")
+        .classList.add(info.color);
+    }
+}
+  
+function calculateTimeFraction(timeLeft, seconds) {
+    const rawTimeFraction = timeLeft / seconds;
+    return rawTimeFraction - (1 / seconds) * (1 - rawTimeFraction);
+}
+  
+function setCircleDasharray(timeLeft, seconds) {
+    const circleDasharray = `${(
+      calculateTimeFraction(timeLeft, seconds) * FULL_DASH_ARRAY
+    ).toFixed(0)} 283`;
+    document
+      .getElementById("base-timer-path-remaining")
+      .setAttribute("stroke-dasharray", circleDasharray);
+}
+  
 
 class GameInterface {
     constructor(game) {
@@ -1291,19 +1451,32 @@ class GameInterface {
                 this.doNextFinalElement(false);
             }
         })
+        this.outputButtonReady = false;
         this.outputButton.addEventListener("click", () => {
             if(this.game.expected_output == "write") {
                 if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
-                    this.ready()
+                    if(this.outputButtonReady == false) {
+                        this.ready()
+                    } else {
+                        this.unready()
+                    }
                 }
             }
             else if(this.game.expected_output == "drawAndName") {
                 if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
-                    this.ready()
+                    if(this.outputButtonReady == false) {
+                        this.ready()
+                    } else {
+                        this.unready()
+                    }
                 }
             }
             else {
-                this.ready()
+                if(this.outputButtonReady == false) {
+                    this.ready()
+                } else {
+                    this.unready()
+                }
             }
         })
 
@@ -1603,7 +1776,7 @@ class GameInterface {
             //console.log("Attempting to draw")
             // mouse left button must be pressed
             
-            if (!(e.buttons === 1 || (e.touches && e.touches.length))) return;
+            if (!(e.buttons === 1 || (e.touches && e.touches.length)) || g_interface.outputButtonReady) return;
             //console.log("ok now draw")            
 
             ctx.beginPath(); // begin
@@ -1658,6 +1831,17 @@ class GameInterface {
         })*/
     }
 
+    setOutputButtonReady() {
+        this.outputButton.firstElementChild.textContent = lang[language]['edit']
+        this.outputButtonReady = true        
+    }
+
+    setOutputButtonUnready() {
+        console.log(this.outputButton)
+        this.outputButton.firstElementChild.textContent = lang[language]['done']
+        this.outputButtonReady = false
+    }
+
     setLanguageLabels() {
         document.getElementById("players-label").textContent = lang[language]['players']
         document.getElementById("gamemodes-label").textContent = lang[language]['gamemodes']
@@ -1667,7 +1851,7 @@ class GameInterface {
         document.getElementById("game-results").textContent = lang[language]['game_results']
         document.getElementById("invite-label").textContent = lang[language]['invite']
         document.getElementById("start-lobby-label").textContent = lang[language]['start']
-        document.getElementById("output-button").textContent = lang[language]['done']
+        document.getElementById("output-button").firstElementChild.textContent = lang[language]['done']
         document.getElementById("dismissVersusModalBtn").textContent = lang[language]['done']
     }
     
@@ -1798,6 +1982,7 @@ class GameInterface {
         this.lobbyGames.classList.remove("d-flex");
         this.mainContainer.classList.remove("h-lg-90")
         this.topBar.classList.remove("d-lg-flex")
+        this.versusModal.hide()
     }
 
 
@@ -1825,6 +2010,7 @@ class GameInterface {
         this.rockyNoise.play();
         this.inputDiv.classList.remove("d-none");
         this.inputDiv.classList.add("d-flex");
+        this.versusModal.hide()
         console.log("Show input divv")
     }
 
@@ -1899,6 +2085,7 @@ class GameInterface {
         this.outputWriteDiv.classList.remove("d-flex");
         this.outputDrawDiv.classList.add("d-none");
         this.outputWriteDiv.classList.add("d-none");
+        this.setOutputButtonUnready()
         this.outputHideDrawing();
         this.outputDivLabel.textContent = "";
         this.outputWriteArea.value = "";
@@ -1985,8 +2172,13 @@ class GameInterface {
         return this.canvas.toDataURL();
     }
 
+    unready() {
+        this.setOutputButtonUnready()
+        this.game.unready()
+    }
+
     ready() {
-        this.outputButton.disabled = true;
+        this.setOutputButtonReady()
         this.game.ready()
     }
 
@@ -2285,6 +2477,51 @@ class GameInterface {
             }, 1000)
         }
     }
+
+
+    startTimer(seconds, callback) {
+        var timerInterval;
+        var timePassed = 0;
+        let timeLeft;
+        let timeUp = () => {
+            this.endTimer()
+        }
+        this.did_timer_action = false;
+        timerInterval = setInterval(() => {
+      
+            timePassed = timePassed += 1;
+            timeLeft = seconds - timePassed;
+
+            document.getElementById("base-timer-label").innerHTML = formatTimeLeft(timeLeft);
+            
+            setCircleDasharray(timeLeft, seconds);
+            setRemainingPathColor(timeLeft);
+
+            if (timeLeft <= 0) {
+                timeUp();                
+            }
+        }, 1000);
+        this.timerInterval = timerInterval
+        this.timerCallback = callback
+    }
+
+    endTimer() {
+        if(this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        if(this.timerCallBack) {
+            this.timerCallback()
+            this.timerCallback = null;
+        }
+    }
+
+    doTimerAction() {
+        if(this.timerCallback) {
+            this.timerCallback();
+            this.did_timer_action = true;
+        }
+    }
     
 
     voteVersus(choice) {
@@ -2310,6 +2547,7 @@ class GameInterface {
                 this.voteVersus(1)
             })
             this.expecting_vote = true
+            //this.startTimer(20, () => {});
         }, 2400);
     }
 

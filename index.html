@@ -10,9 +10,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=27-01-23-2">
-    <link rel="stylesheet" href="responsive.css?v=27-01-23-2">
-    <link rel="stylesheet" href="sass.css?v=27-01-23-2">
+    <link rel="stylesheet" href="style.css?v=04-02-23">
+    <link rel="stylesheet" href="responsive.css?v=04-02-23">
+    <link rel="stylesheet" href="sass.css?v=04-02-23">
     <title>BrainCrankin</title><!-- CSS only -->
     
 </head>
@@ -74,7 +74,7 @@
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 2.0.3</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 3.0.0</h5>
                 </div>
                 <div id="main-container" class="row h-100 h-lg-90 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
@@ -227,8 +227,32 @@
                         <button id="output-button" class="btn btn-primary m-1"><h4>Done</h4></button>
                     </div>
                     <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100">
-                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">
-                            <h1 id="game-results"></h1>
+                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">                            
+                            <div class="d-flex justify-content-center">
+                                <!-- <div></div> -->
+                                <h1 id="game-results"></h1>
+                                <!-- <div class="base-timer">
+                                    <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                      <g class="base-timer__circle">
+                                        <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+                                        <path
+                                          id="base-timer-path-remaining"
+                                          stroke-dasharray="283"
+                                          class="base-timer__path-remaining ${remainingPathColor}"
+                                          d="
+                                            M 50, 50
+                                            m -45, 0
+                                            a 45,45 0 1,0 90,0
+                                            a 45,45 0 1,0 -90,0
+                                          "
+                                        ></path>
+                                      </g>
+                                    </svg>
+                                    <span id="base-timer-label" class="base-timer__label">
+                                      
+                                    </span>
+                                </div>                                   -->
+                            </div>
                             <div id="chat-holder" class="d-none flex-column m-2 animate__bounceIn">
                                 <!--
                                 <div class="d-flex flex-row-reverse">
@@ -288,11 +312,11 @@
         <small>&copy; copyright</small>
     </footer> -->
 
-    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <!-- JavaScript Bundle with Popper -->
+    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=27-01-23-2"></script>
+    <script src="game.js?v=04-02-23"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>
