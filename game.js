@@ -508,6 +508,7 @@ class Game {
                         console.log("Called showContentDiv from peer socket")
                         this.game_interface.showContentDiv();
                         break;
+
                     default:
                         break;
                 }
@@ -616,8 +617,7 @@ class Game {
                                 case 'versusVote':
                                     game.handleVersusReady(conn.peer, data.choice)
                                     break
-                                
-                            
+                                                            
                                 default:
                                     break;
                             }
@@ -698,7 +698,7 @@ class Game {
                     "output" : "write",
                     "label" : "write_prompt"
                 });
-                for(var i = 1; i < this.players.length; i++) {
+                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
                     if(i % 2 == 0) {
                         this.roundList.push({
                             "input" : "draw",
@@ -722,7 +722,7 @@ class Game {
                     "output": "drawAndName",
                     "label": "versus_first"
                 });
-                for(var i = 1; i < this.players.length; i++) {
+                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
                     this.roundList.push({
                         "input" : "drawAndName",
                         "output": "drawAndName",
@@ -1035,6 +1035,8 @@ class Game {
             }
             console.log("Beep boop")
             this.hostNextRound(false)            
+        } else {
+            // this.sendReadyCount(this.readySet.size)
         }
     }
 
@@ -1070,6 +1072,8 @@ class Game {
             });
         }
     }
+
+    
 
     sendDoNextFinalElement(resetTimeline, winner) {
         console.log("Sending DoNextFinalElement!")
@@ -1107,6 +1111,16 @@ class Game {
         this.game_interface.finishGame(style);
     }
 
+    // sendReadyCount(count) {        
+    //     for(let i = 0; i < this.playerConns.length; i++) {
+    //         this.playerConns[i].send({
+    //             "error" : false,
+    //             "type": "readyCount",
+    //             "count": count
+    //         });
+    //     }
+    // }
+
     handleReady(peerId, outputData, is_self) {
         console.log(peerId + " is ready!");
         console.log(outputData);
@@ -1116,7 +1130,7 @@ class Game {
         if(this.readySet.has(peerId)) {
             return;
         }
-        this.readySet.add(peerId);
+        this.readySet.add(peerId);        
         for(let i = 0; i < this.roundPlayerMatches.length; i++) {
             if(peerId == this.roundPlayerMatches[i].peerId) {
                 console.log(this.roundPlayerMatches[i].name)
@@ -1376,6 +1390,18 @@ class GameInterface {
         }
         this.hostButton = document.getElementById("host-main-button");
         this.lobbyHostButtons = document.getElementById("lobby-host-buttons");
+        this.lobbySettingsContainer = document.getElementById("settings-container")
+        this.gameList = document.getElementById("game-list-id")
+        this.lobbyExtraRoundsSlider = document.getElementById("lobby-extra-rounds-slider");
+        this.lobbyExtraRoundsLabel = document.getElementById("lobby-extra-rounds-label");
+        console.log(this.lobbyExtraRoundsSlider)
+        this.lobbyExtraRoundsLabel.textContent = "0"
+        this.extraRounds = 0
+        this.lobbyExtraRoundsSlider.oninput = () => {
+            console.log(this.lobbyExtraRoundsSlider)
+            this.lobbyExtraRoundsLabel.textContent = this.lobbyExtraRoundsSlider.value            
+            this.extraRounds = parseInt(this.lobbyExtraRoundsSlider.value)
+        }
         this.lobbyGuestText = document.getElementById("lobby-guest-text");
         this.joinDiv = document.getElementById("join-div");
         this.quitButton = document.getElementById("quit-button");
@@ -1831,6 +1857,8 @@ class GameInterface {
         })*/
     }
 
+
+
     setOutputButtonReady() {
         this.outputButton.firstElementChild.textContent = lang[language]['edit']
         this.outputButtonReady = true        
@@ -1921,16 +1949,36 @@ class GameInterface {
             
             this.lobbyHostButtons.classList.remove("d-flex");
             this.lobbyHostButtons.classList.add("d-none");
+
+            this.lobbySettingsContainer.classList.remove("d-flex");
+            this.lobbySettingsContainer.classList.add("d-none");
+
+            this.gameList.classList.add("h-75")
+            this.gameList.classList.add("h-lg-100")
+
+            this.gameList.classList.remove("h-50")
+            this.gameList.classList.remove("h-lg-75")
         }
         else {
             this.game.name = this.nameBox.value
             //this.game.be_host();
-
+            
             this.lobbyGuestText.classList.add("d-none");
             this.lobbyGuestText.classList.remove("d-flex");
             
             this.lobbyHostButtons.classList.add("d-flex");
             this.lobbyHostButtons.classList.remove("d-none");
+
+            this.lobbySettingsContainer.classList.add("d-flex");
+            this.lobbySettingsContainer.classList.remove("d-none");
+
+
+            this.gameList.classList.add("h-50")
+            this.gameList.classList.add("h-lg-75")
+
+            this.gameList.classList.remove("h-75")
+            this.gameList.classList.remove("h-lg-100")
+
         }
         this.rockyNoise.load();
         this.rockyNoise.play();
@@ -2223,6 +2271,8 @@ class GameInterface {
             }, 1000)
         }
     }
+
+    
     
     doNextFinalElement(send = true, winner) {
         console.log("=================================================")
@@ -2656,13 +2706,13 @@ htmlElement.height = window.innerHeight;
 
 
 // DEBUG!!!!! DO N O T, UNDER ANY CIRCUMSTANCES, LET THIS GET TO PRODUCTION
-function reloadCss()
-{
-    var links = document.getElementsByTagName("link");
-    for (var cl in links)
-    {
-        var link = links[cl];
-        if (link.rel === "stylesheet")
-            link.href += "";
-    }
-}
+// function reloadCss()
+// {
+//     var links = document.getElementsByTagName("link");
+//     for (var cl in links)
+//     {
+//         var link = links[cl];
+//         if (link.rel === "stylesheet")
+//             link.href += "";
+//     }
+// }

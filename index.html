@@ -10,9 +10,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=04-02-23">
-    <link rel="stylesheet" href="responsive.css?v=04-02-23">
-    <link rel="stylesheet" href="sass.css?v=04-02-23">
+    <link rel="stylesheet" href="style.css?v=11-02-23">
+    <link rel="stylesheet" href="responsive.css?v=11-02-23">
+    <link rel="stylesheet" href="sass.css?v=11-02-23">
     <title>BrainCrankin</title><!-- CSS only -->
     
 </head>
@@ -74,7 +74,7 @@
                         </button>
                     </div>                    
                     <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 3.0.0</h5>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 3.1.0</h5>
                 </div>
                 <div id="main-container" class="row h-100 h-lg-90 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
@@ -144,7 +144,7 @@
                     </div>
                     <div id="lobby-games" class="d-none flex-column col-lg-8 col-12 mh-100">
                         <h3 id="gamemodes-label" class="text-center">Gamemodes</h3>
-                        <ul class="container game-list h-75 h-lg-100">
+                        <ul class="container game-list" id="game-list-id">
                             <div id="game-list-row" class="row">
                                 <li class="game-list-container col-lg-4 col-md-6 col-12">
                                     <button class="btn btn-primary sass-button draw meet game-list-item d-flex flex-column justify-content-around">
@@ -160,6 +160,11 @@
                                 </li>                                
                             </div>
                         </ul>
+                        <div class="container h-25" id="settings-container">
+                            <h3>Extra rounds: </h3>
+                            <h4 id="lobby-extra-rounds-label"></h4>
+                            <input type="range" min="0" max="10" value="0" class="slider" id="lobby-extra-rounds-slider">
+                        </div>
                         <div id="lobby-host-buttons" class="m-2 d-flex justify-content-around">
                             <button class="btn btn-primary" id="invite-button"> <h2 id="invite-label"></h2></button>
                             <button class="btn btn-primary" id="start-button"><h2 id="start-lobby-label"></h2></button>
@@ -189,12 +194,12 @@
                             </div>
                         </div>
                     </div>
-                    <div id="input-div" class="animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center">
+                    <div id="input-div" class="animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
                         <h1 id="input-div-label"></h1>
                         <p id="input-write-div">
 
                         </p>
-                        <div id="input-draw-div" class="mw-100">
+                        <div id="input-draw-div" class="mw-100 mh-100">
 
                         </div>
                         <button id="end-input-btn" class="btn btn-primary">Go!</button>
@@ -316,7 +321,7 @@
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=04-02-23"></script>
+    <script src="game.js?v=11-02-23"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>
