@@ -28,6 +28,7 @@ var lang = {
         "versus_fight": "Make a character to beat the opponent!",
         "done": "done",
         "edit": "edit",
+        "extra_rounds": "Extra rounds",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -58,6 +59,7 @@ var lang = {
         "versus_fight": "Crea a un personaje para derrotar al oponente!",
         "done": "listo",
         "edit": "editar",
+        "extra_rounds": "Rondas extra",
     }
 }
 
@@ -494,7 +496,7 @@ class Game {
                         if(data.resetTimeline) {
                             console.log("reset the timeline, child")
                             this.game_interface.timelineElementIndex = -1
-                            this.game_interface.clearTimeline();
+                            this.game_interface.clearTimeline();                            
                         }
                         console.log("Calling doNextFinalElement from peer socket")
                         if(data.winner) {
@@ -1881,6 +1883,7 @@ class GameInterface {
         document.getElementById("start-lobby-label").textContent = lang[language]['start']
         document.getElementById("output-button").firstElementChild.textContent = lang[language]['done']
         document.getElementById("dismissVersusModalBtn").textContent = lang[language]['done']
+        document.getElementById("extra-rounds-title").textContent = lang[language]['extra_rounds'] + ": "
     }
     
     changeGameListFocus(index) {        
@@ -2276,6 +2279,9 @@ class GameInterface {
     
     doNextFinalElement(send = true, winner) {
         console.log("=================================================")
+        console.log("=================================================")
+        console.log("=================================================")
+        console.log("DOING NEXT FINAL ELEMENT!!!!!!!!!!!!!!!!")
         console.log("Call showContentDiv from nextFinalElement")
         if(winner) {
             this.game.last_victory = winner
@@ -2354,8 +2360,12 @@ class GameInterface {
         } else {
             this.game.last_victory = "l"
             let pos = this.versusHolder
+            console.log("REMOVING FADEINS!!!!!!!")
             pos.firstElementChild.firstElementChild.classList.remove("animate__fadeInLeftBig")
             pos.firstElementChild.children[1].classList.remove("animate__fadeInRightBig")
+            pos.firstElementChild.firstElementChild.classList.remove("animate__fadeOutfLeftBig")
+            pos.firstElementChild.children[1].classList.remove("animate__fadeOutfRightBig")
+            
 
             pos.firstElementChild.firstElementChild.classList.remove("animate-headbutt-left")
             pos.firstElementChild.children[1].classList.remove("animate-headbutt-right")
@@ -2367,6 +2377,19 @@ class GameInterface {
             pos.firstElementChild.children[1].classList.remove("d-flex");
             pos.firstElementChild.classList.remove("gallery-active")
         }
+    }
+    clearVersusStyles() {
+        let pos = this.versusHolder
+            console.log("REMOVING FADEINS!!!!!!!")
+            pos.firstElementChild.firstElementChild.classList.remove("animate__fadeInLeftBig")
+            pos.firstElementChild.children[1].classList.remove("animate__fadeInRightBig")
+            pos.firstElementChild.firstElementChild.classList.remove("animate__fadeOutfLeftBig")
+            pos.firstElementChild.children[1].classList.remove("animate__fadeOutfRightBig")
+            
+            pos.firstElementChild.firstElementChild.classList.remove("animate-headbutt-left")
+            pos.firstElementChild.children[1].classList.remove("animate-headbutt-right")
+            
+            pos.firstElementChild.classList.remove("gallery-active")
     }
 
     addFinalsEnd(data) {
@@ -2464,16 +2487,21 @@ class GameInterface {
                 console.log("Chose the element:")
                 console.log(el)
                 if(removeLast) {
-                    console.log("WE ART REMOVING LAST!!!!")
-                    pos.classList.remove("animate__fadeOutLeftBig")
-                    pos.classList.remove("animate__fadeOutRightBig")
+                    console.log("WE ART REMOVING LAST!!!!")                    
                     if(direction == "l") {
+                        console.log("REMOVING LEFT FADEIN, ADDING LEFT FADEOUT")
+                        el.classList.remove("animate-headbutt-left")                    
                         el.classList.remove("animate__fadeInLeftBig")                    
                         el.classList.add("animate__fadeOutLeftBig")                   
                     } else {
+                        console.log("REMOVING RIGHT FADEIN, ADDING RIGHT FADEOUT")
+                        el.classList.remove("animate-headbutt-right")                    
                         el.classList.remove("animate__fadeInRightBig")
                         el.classList.add("animate__fadeOutRightBig")
                     }
+                    console.log("After removing fadein and adding fadeout, el is: ")
+                    console.log(el)
+                    
                     setTimeout(() => {
                         this.addVersusElement(element, el, direction, startRound)
                     }, 1400);
@@ -2506,9 +2534,13 @@ class GameInterface {
         
 
         if(direction == "l") {
-            pos.classList.add("animate__fadeInLeftBig")
+            console.log("ADDING FADEIN LEFT")
+            pos.classList.add("animate__fadeInLeftBig")            
+            pos.classList.remove("animate__fadeOutLeftBig")            
         } else {
-            pos.classList.add("animate__fadeInRightBig")
+            console.log("ADDING FADEIN RIGHT")
+            pos.classList.add("animate__fadeInRightBig")            
+            pos.classList.remove("animate__fadeOutRightBig") 
         }
         pos.classList.add("d-flex")
         pos.classList.remove("d-none")
@@ -2586,6 +2618,8 @@ class GameInterface {
         this.versusBall.classList.remove("d-none")
         this.versusHolder.firstElementChild.firstElementChild.classList.add("animate-headbutt-left")
         this.versusHolder.firstElementChild.children[1].classList.add("animate-headbutt-right")
+        this.versusHolder.firstElementChild.firstElementChild.classList.remove("animate__fadeInLeftBig")
+        this.versusHolder.firstElementChild.children[1].classList.remove("animate__fadeInRightBig")
         setTimeout(() => {
             this.versusHolder.firstElementChild.classList.add("gallery-active")            
             // this.versusHolder.firstElementChild.firstElementChild.classList.remove("w-50")
