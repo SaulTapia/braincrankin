@@ -12,8 +12,11 @@
     --blue-transparent: rgba(94, 176, 191, 0.48);
     --blue-gray: #5b5f97ff;
     --blue-dark: rgba(32, 37, 106, 1);
+    --blue-light: #8cf0fa;
     --blue-dark-transparent: rgba(43, 76, 138, 0.709);
+    
     --brown: #8f5c38ff;
+    --red-light: #fa9d8c;
     --maroon: #bf1363ff;
     --maroon-transparent: rgba(191, 19, 99, 0.743);
 }
@@ -76,7 +79,7 @@ body{
     align-items: center;
     flex: 1;
 }
-settings-container {
+#settings-container {
     overflow-x: hidden;
     overflow-y: scroll;
 }
@@ -93,6 +96,7 @@ settings-container {
     background: #d3d3d3;
     outline: none;
     opacity: 0.7;
+    margin: 10px;
     -webkit-transition: .2s;
     transition: opacity .2s;
   }

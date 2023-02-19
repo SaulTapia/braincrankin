@@ -131,7 +131,7 @@
         --mask: 
           conic-gradient(from -135deg at right,#0000,#000 1deg 89deg,#0000 90deg) 
             50%/100% calc(2*var(--z)) repeat-y;
-        background-color: var(--blue-dark);
+        background-color: var(--blue-light);
         
     }
     .gallery > div:nth-child(2) {
@@ -140,7 +140,7 @@
         --mask: 
           conic-gradient(from   45deg at left ,#0000,#000 1deg 89deg,#0000 90deg) 
             50% calc(50% - var(--z))/100% calc(2*var(--z)) repeat-y;
-        background-color: var(--maroon);
+        background-color: var(--red-light);
     }
     
     /* .gallery-inactive > div {
@@ -367,7 +367,7 @@
         --mask: 
           conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 
           200%/10% 100% repeat-x;
-        background-color: var(--blue-dark);
+        background-color: var(--blue-light);
         
     }
     .gallery > div:nth-child(2) {
@@ -376,7 +376,7 @@
         --mask: 
           conic-gradient(from 135deg at top ,#0000,#000 1deg 89deg,#0000 90deg) 
             200%/10% 100% repeat-x;
-        background-color: var(--maroon);
+        background-color: var(--red-light);
     }
     
     /* .gallery-inactive > div {
