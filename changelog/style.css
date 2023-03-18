@@ -256,6 +256,22 @@ canvas[resize] {
     margin: 15px;
 }
 
+#writer-holder {
+    overflow-x: scroll;
+    font-family: 'Brush Script MT', cursive !important;
+}
+
+#writer-holder p {
+    margin: 20px;
+    font-size: 30px;
+    width: 80%;
+}
+
+#writer-holder button {
+    margin: 5px;
+    padding: 5px;
+}
+
 .player-box {
     background-color: var(--blue-dark);    
     color: white;
@@ -426,6 +442,16 @@ footer{
     height: 150px;
     list-style: none;
 }
+
+.game-list-container p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    display: block;
+    line-height: 1em; /* a */
+    max-height: 2em;
+}
+
 
 .game-list {
     overflow-x: hidden;

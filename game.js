@@ -29,6 +29,10 @@ var lang = {
         "done": "done",
         "edit": "edit",
         "extra_rounds": "Extra rounds",
+        "writer_name": "drunk writer",
+        "writer_desc": "Take turns finishing each other's sentences to write a crazy story!",
+        "writer_first": "Write the start of the story!",
+        "writer_round": "Continue the story!",
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -60,6 +64,10 @@ var lang = {
         "done": "listo",
         "edit": "editar",
         "extra_rounds": "Rondas extra",
+        "writer_name": "escritor borracho",
+        "writer_desc": "Complementa las historias de otras personas para escribir juntos una historia loca!",
+        "writer_first": "Escribe el inicio de la historia",
+        "writer_round": "Continúa la historia!",
     }
 }
 
@@ -78,11 +86,17 @@ const gameModes = [
         "time-limit-secs": 40
     },
     {
-        "name" : "coming_soon",
-        "desc" : "",
-        "gameStyle" : "none",
-        "time-limit-secs": 0,
-    }
+        "name" : "news",
+        "desc" : "news_desc",
+        "gameStyle" : "news",
+        "time-limit-secs": 40
+    },
+    // {
+    //     "name" : "writer_name",
+    //     "desc" : "writer_desc",
+    //     "gameStyle" : "writer",
+    //     "time-limit-secs": 30,
+    // }
 ]
 
 const colors = [
@@ -733,10 +747,31 @@ class Game {
                 }
                 break;
 
+            case "news":
+                console.log("NEWS MODE")
+                break;
+
+            case "writer_name":                    
+                this.roundList.push({
+                    "input" : "none",
+                    "output": "write",
+                    "label": "writer_first"
+                });
+                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
+                    this.roundList.push({
+                        "input" : "write",
+                        "output": "write",
+                        "label": "writer_round"
+                    })
+                }
+                break;
+
             default:
                 break;
         
         }
+        console.log("ROUND LIST IS:")
+        console.log(this.roundList)
         this.roundPlayerList = [...this.players]
         console.log(this.playerConns)
         this.roundPlayerConns = [false]
@@ -787,6 +822,10 @@ class Game {
             case "faceoff":
                 return "versus"
                 break;
+
+            case "writer_name":
+                return "writer"
+                break
             default:
                 return "NOTHING???? Gamemode is " + this.current_gamemode
                 break;
@@ -805,7 +844,8 @@ class Game {
         if(this.roundList.length) {
             console.log("roundlist length")
             var round = this.roundList.shift();
-            console.log(round)
+            console.log("Hosting next round, round is : ")
+            console.log(round)            
             this.readySet.clear();
             this.sendStartRound(round, firstRound)
         } else {
@@ -883,6 +923,27 @@ class Game {
                     "output": "drawAndName",
                     "label": "versus_first"
                 }
+                break;
+            
+            case "writer_name":
+                if(!roundData) return {
+                    "input" : "none",
+                    "output": "write",
+                    "label": "writer_first"
+                }
+                if(roundData.write) {
+                    return {
+                        "input" : "write",
+                        "output": "write",
+                        "label": "versus_round"
+                    }
+                }            
+                return {
+                    "input" : "none",
+                    "output": "write",
+                    "label": "writer_first"
+                }
+                break;
         }
         return null;
     }
@@ -1027,6 +1088,7 @@ class Game {
     }
 
     tryToStartNextRound() {
+        // Returns whether or not the output button should be changed to "Ready"
         console.log(this.readySet.size + " ready, need " + this.players.length)
         if(this.readySet.size >= this.players.length) {
             this.rotateArrayRight(this.roundPlayerMatches);
@@ -1036,9 +1098,11 @@ class Game {
                 this.self_match_index = 0;
             }
             console.log("Beep boop")
-            this.hostNextRound(false)            
+            this.hostNextRound(false)
+            return false
         } else {
             // this.sendReadyCount(this.readySet.size)
+            return true;
         }
     }
 
@@ -1127,10 +1191,10 @@ class Game {
         console.log(peerId + " is ready!");
         console.log(outputData);
         if(!is_self && peerId == this.peer.id) {
-            return;
+            return false;
         }
         if(this.readySet.has(peerId)) {
-            return;
+            return false;
         }
         this.readySet.add(peerId);        
         for(let i = 0; i < this.roundPlayerMatches.length; i++) {
@@ -1139,34 +1203,37 @@ class Game {
                 this.gameResults[i].push({
                     "name" : this.roundPlayerMatches[i].name,
                     ...outputData
-                });
+                });                
+                break;
             }
         }
-        this.tryToStartNextRound();
+        return this.tryToStartNextRound();
     }
 
     handleUnready(peerId, is_self, key) {
-        console.log(peerId + " is NOT ready!");        
+        console.log(peerId + " IS UNREADY NOW")
         if(!is_self && peerId == this.peer.id) {
-            return;
+            console.log("IT WASN'T SELF???? WTF")
+            return false;
         }
-        if(!this.readySet.has(peerId) || key != this.roundKey) {
-            return;
-        }
+        // if(!this.readySet.has(peerId) || key != this.roundKey) {
+        //     return false;
+        // }
+        console.log(peerId + " is NOT ready!");        
         this.readySet.delete(peerId);
         for(let i = 0; i < this.roundPlayerMatches.length; i++) {
             if(peerId == this.roundPlayerMatches[i].peerId) {
                 console.log(this.roundPlayerMatches[i].name)
                 if(this.gameResults[i].length > 0 && this.gameResults[i][this.gameResults[i].length - 1].roundKey == key) {
                     this.gameResults[i].pop()
-                }
+                }                
                 // this.gameResults[i].push({
                 //     "name" : this.roundPlayerMatches[i].name,
                 //     ...outputData
                 // });
             }
         }
-        this.tryToStartNextRound();
+        return true;
     }
 
     handleVersusReady(peerId, choice) {
@@ -1230,9 +1297,10 @@ class Game {
 
     unready() {
         if(this.is_host) {
-            this.handleUnready(this.peer.id, true, this.roundKey)
+            return this.handleUnready(this.peer.id, true, this.roundKey)
         } else {
             this.sendUnreadyToHost();
+            return true;
         }
     }
 
@@ -1241,9 +1309,10 @@ class Game {
             console.log("CALLED HANDLEREADY FROM HOST")
             console.log(this.peer)
             console.log(this.peer.id)
-            this.handleReady(this.peer.id, this.getOutputData(), true)
+            return this.handleReady(this.peer.id, this.getOutputData(), true)
         } else {
             this.sendReadyToHost(this.getOutputData());
+            return true;
         }
         
     }
@@ -1419,6 +1488,14 @@ class GameInterface {
         this.versusModal = new bootstrap.Modal('#versusModal', {
             keyboard: false
         })
+        this.versusModalState = false;
+
+        document.addEventListener("visibilitychange", (event) => {
+            if (document.visibilityState == "visible" && this.versusModalState == false) {
+                this.versusModal.hide()
+            } 
+        });
+
         this.versusModalLabel = document.getElementById("versusModalLabel")
         this.versusModalImg = document.getElementById("versusModalImg")
           
@@ -1439,6 +1516,7 @@ class GameInterface {
         this.finalsDiv = document.getElementById("finals-div");
         this.chatHolder = document.getElementById("chat-holder");
         this.versusHolder = document.getElementById("versus-holder");        
+        this.writerHolder = document.getElementById("writer-holder");        
         this.versusBall = document.getElementById("versus-ball");        
         this.colorHolder = document.getElementById("color-holder");
         this.widthHolder = document.getElementById("width-holder");
@@ -1481,7 +1559,9 @@ class GameInterface {
         })
         this.outputButtonReady = false;
         this.outputButton.addEventListener("click", () => {
+            console.log("Clicked output button!")
             if(this.game.expected_output == "write") {
+                console.log("Output is Write")                
                 if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
                     if(this.outputButtonReady == false) {
                         this.ready()
@@ -1491,12 +1571,15 @@ class GameInterface {
                 }
             }
             else if(this.game.expected_output == "drawAndName") {
-                if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
-                    if(this.outputButtonReady == false) {
+                console.log("Output is drawAndName")                
+                if(this.outputButtonReady == false) {
+                    if(this.outputWriteArea.value.length > 0 && this.outputWriteArea.value != "") {
+                        console.log("Calling Ready from output button")
                         this.ready()
-                    } else {
-                        this.unready()
                     }
+                } else {
+                    console.log("Calling Unready from output button")
+                    this.unready()
                 }
             }
             else {
@@ -1558,6 +1641,13 @@ class GameInterface {
             if(!game.is_host) return;
             this.changeGameListFocus(1)            
             game.sendChooseGame(1);
+        })
+        this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
+        this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
+        this.listRowChildren[2].children[0].addEventListener("click",() => {
+            if(!game.is_host) return;
+            this.changeGameListFocus(2)            
+            game.sendChooseGame(2);
         })
         // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
         // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
@@ -1863,13 +1953,15 @@ class GameInterface {
 
     setOutputButtonReady() {
         this.outputButton.firstElementChild.textContent = lang[language]['edit']
-        this.outputButtonReady = true        
+        this.outputButtonReady = true
+        console.log("Set button as ready!!!!!")
     }
 
     setOutputButtonUnready() {
         console.log(this.outputButton)
         this.outputButton.firstElementChild.textContent = lang[language]['done']
         this.outputButtonReady = false
+        console.log("Set button as ABSOLUTELY NOT ready!!!!!")
     }
 
     setLanguageLabels() {
@@ -1940,6 +2032,7 @@ class GameInterface {
         this.topBar.classList.add("d-lg-flex")
         
         this.versusModal.hide()
+        this.versusModalState = false;
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
@@ -2016,6 +2109,7 @@ class GameInterface {
         this.hideOutputDiv();
         this.hideFinalsDiv();
         this.versusModal.hide()
+        this.versusModalState = false;
         console.log("main menu")
         //if(this.game.is_host) this.game.stop_hosting();
         //else if(this.game.in_lobby) {
@@ -2034,6 +2128,7 @@ class GameInterface {
         this.mainContainer.classList.remove("h-lg-90")
         this.topBar.classList.remove("d-lg-flex")
         this.versusModal.hide()
+        this.versusModalState = false;
     }
 
 
@@ -2062,6 +2157,7 @@ class GameInterface {
         this.inputDiv.classList.remove("d-none");
         this.inputDiv.classList.add("d-flex");
         this.versusModal.hide()
+        this.versusModalState = false;
         console.log("Show input divv")
     }
 
@@ -2136,7 +2232,7 @@ class GameInterface {
         this.outputWriteDiv.classList.remove("d-flex");
         this.outputDrawDiv.classList.add("d-none");
         this.outputWriteDiv.classList.add("d-none");
-        this.setOutputButtonUnready()
+        this.setOutputButtonUnready();
         this.outputHideDrawing();
         this.outputDivLabel.textContent = "";
         this.outputWriteArea.value = "";
@@ -2224,13 +2320,17 @@ class GameInterface {
     }
 
     unready() {
-        this.setOutputButtonUnready()
-        this.game.unready()
+        if(this.game.unready()) {
+            this.setOutputButtonUnready()
+        }
     }
 
     ready() {
-        this.setOutputButtonReady()
-        this.game.ready()
+        console.log("Called ready from g_interface??")
+        if(this.game.ready()) {
+            console.log("Setting Output Button Ready from g_interface")
+            this.setOutputButtonReady()
+        }
     }
 
     showFinalsDiv(style) {
@@ -2242,21 +2342,30 @@ class GameInterface {
             this.chatHolder.classList.remove("d-none");
             this.versusHolder.classList.remove("d-flex");
             this.versusHolder.classList.add("d-none");
+            this.writerHolder.classList.remove("d-flex");
+            this.writerHolder.classList.add("d-none");
             document.getElementById("game-results").classList.remove("d-none")
         } else if(style == "versus") {
             document.getElementById("game-results").classList.add("d-none")
             this.chatHolder.classList.add("d-none");
             this.chatHolder.classList.remove("d-flex");
+
+            this.writerHolder.classList.remove("d-flex");
+            this.writerHolder.classList.add("d-none");
+
             this.versusHolder.classList.add("d-flex");
             this.versusHolder.classList.remove("d-none");
-            this.handleVersusFinals()
+            // this.handleVersusFinals()
+        } else if(style == "writer") {
+            this.chatHolder.classList.add("d-none");
+            this.chatHolder.classList.remove("d-flex");
+            this.versusHolder.classList.remove("d-flex");
+            this.versusHolder.classList.add("d-none");
+            this.writerHolder.classList.remove("d-none");
+            this.writerHolder.classList.add("d-flex");
         }
         this.rockyNoise.load();
         this.rockyNoise.play();
-    }
-
-    handleVersusFinals() {
-        
     }
 
     finishGame(style) {
@@ -2332,12 +2441,16 @@ class GameInterface {
             pos = this.chatHolder
         } else if(this.game.current_gamemode == "faceoff") {
             this.versusModal.hide()
+            this.versusModalState = false;
             pos = this.versusHolder
             if(this.timelineElementIndex < 2 || !this.game.last_victory) {
                 dir = ((this.timelineElementIndex % 2) == 0) ? "l" : "r";
             } else {                
                 dir = (this.game.last_victory == "l") ? "r" : "l";
             }
+        } else if(this.game.current_gamemode == "writer_name") {
+            dir = null
+            pos = this.writerHolder
         }
         
 
@@ -2400,6 +2513,11 @@ class GameInterface {
                 break;
             case 'faceoff':                
                 this.addVersusEnd();
+                break;
+
+            case 'writer':
+                this.addWriterEnd();
+                break;
         }        
     }
 
@@ -2424,6 +2542,7 @@ class GameInterface {
             this.dismissVersusModalBtn.classList.add("d-none");
         }
         this.versusModal.show()
+        this.versusModalState = true
     }
 
     addClassicEnd() {
@@ -2509,6 +2628,9 @@ class GameInterface {
                     this.addVersusElement(element, el, direction, startRound)
                 }
                 break;
+            case "writer_name":
+                this.addWriterElement(element, pos)
+                break;
         }
     }
 
@@ -2558,6 +2680,29 @@ class GameInterface {
                 this.doNextFinalElement()
             }, 1000)
         }
+    }
+
+    addWriterElement(element, pos) {        
+        var textObject = document.createElement('p')
+        textObject.classList.add("animate__lightSpeedInLeft")
+        textObject.classList.add("animate__animated")
+        textObject.textContent = element.write
+        console.log(element)
+        console.log(pos)
+        
+        pos.firstElementChild.appendChild(textObject)
+
+        // var nextBtn = document.createElement('button')
+        // nextBtn.classList.add("btn")
+        // nextBtn.classList.add("btn-outline-secondary");
+        
+        // nextBtn.textContent = lang[language]["next"]
+        
+        // nextBtn.addEventListener("click", (e) => {
+        //     this.doNextFinalElement()
+        //     nextBtn.remove()
+        // })
+        // pos.appendChild(nextBtn)
     }
 
 
