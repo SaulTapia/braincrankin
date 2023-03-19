@@ -85,12 +85,18 @@ const gameModes = [
         "gameStyle" : "versus",
         "time-limit-secs": 40
     },
-    {
-        "name" : "news",
-        "desc" : "news_desc",
-        "gameStyle" : "news",
-        "time-limit-secs": 40
-    },
+    // {
+    //     "name" : "time_travel",
+    //     "desc" : "time_travel",
+    //     "gameStyle" : "time_travel",
+    //     "time-limit-secs": 40
+    // },
+    // {
+    //     "name" : "news",
+    //     "desc" : "news_desc",
+    //     "gameStyle" : "news",
+    //     "time-limit-secs": 40
+    // },
     // {
     //     "name" : "writer_name",
     //     "desc" : "writer_desc",
@@ -291,7 +297,8 @@ class Game {
         this.peer = new OrderedPeer();
         this.playerConns = []
         this.players = [];
-        this.roundList = [];
+        // this.roundList = [];
+        this.roundsLeft = 0;
         this.roundPlayerList = [];
         this.roundPlayerConns = [];
         this.roundPlayerMatches = [];
@@ -705,73 +712,94 @@ class Game {
     hostPrepareGame(gamemode) {
         this.current_gamemode = gamemode.name
         // Prepare round list
-        this.roundList = []
+        // this.roundList = []
         console.log(gamemode)
-        switch(gamemode.name) {
-            case "classic":
-                this.roundList.push({
-                    "input" : "none",
-                    "output" : "write",
-                    "label" : "write_prompt"
-                });
-                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
-                    if(i % 2 == 0) {
-                        this.roundList.push({
-                            "input" : "draw",
-                            "output" : "write",
-                            "label" : "write_prompt_from_drawing"
-                        });
-                    } 
-                    else {
-                        this.roundList.push({
-                            "input" : "write",
-                            "output" : "draw",
-                            "label" : "draw_from_prompt"
-                        });
-                    }
-                }
-                break;
-            case "faceoff":
-                console.log("VERSUS")
-                this.roundList.push({
-                    "input" : "none",
-                    "output": "drawAndName",
-                    "label": "versus_first"
-                });
-                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
-                    this.roundList.push({
-                        "input" : "drawAndName",
-                        "output": "drawAndName",
-                        "label": "versus_fight"
-                    })
-                }
-                break;
+        this.roundsLeft = this.players.length + this.game_interface.extraRounds
+        // switch(gamemode.name) {
+        //     case "classic":
+        //         this.roundList.push({
+        //             "input" : "none",
+        //             "output" : "write",
+        //             "label" : "write_prompt"
+        //         });
+        //         for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
+        //             if(i % 2 == 0) {
+        //                 this.roundList.push({
+        //                     "input" : "draw",
+        //                     "output" : "write",
+        //                     "label" : "write_prompt_from_drawing"
+        //                 });
+        //             } 
+        //             else {
+        //                 this.roundList.push({
+        //                     "input" : "write",
+        //                     "output" : "draw",
+        //                     "label" : "draw_from_prompt"
+        //                 });
+        //             }
+        //         }
+        //         break;
+        //     case "faceoff":
+        //         console.log("VERSUS")
+        //         this.roundList.push({
+        //             "input" : "none",
+        //             "output": "drawAndName",
+        //             "label": "versus_first"
+        //         });
+        //         for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
+        //             this.roundList.push({
+        //                 "input" : "drawAndName",
+        //                 "output": "drawAndName",
+        //                 "label": "versus_fight"
+        //             })
+        //         }
+        //         break;
 
-            case "news":
-                console.log("NEWS MODE")
-                break;
+        //     case "time_travel":
+        //         console.log("TIME TRAVEL!!!")
+        //         this.roundList.push({
+        //             "input": "none",
+        //             "output": "drawAndName",
+        //             "label": "time_travel_first",
+        //             "solution":
+        //         })
+        //         for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
+        //             if(i % 2 == 0) {
+        //                 this.roundList.push({
+        //                     "input" : "drawAndName",
+        //                     "output" : "drawAndName",
+        //                     "label" : "time_travel_problem"
+        //                 });
+        //             } 
+        //             else {
+        //                 this.roundList.push({
+        //                     "input" : "drawAndName",
+        //                     "output" : "drawAndName",
+        //                     "label" : "time_travel_solution"
+        //                 });
+        //             }
+        //         }
+        //         break;
 
-            case "writer_name":                    
-                this.roundList.push({
-                    "input" : "none",
-                    "output": "write",
-                    "label": "writer_first"
-                });
-                for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
-                    this.roundList.push({
-                        "input" : "write",
-                        "output": "write",
-                        "label": "writer_round"
-                    })
-                }
-                break;
-
-            default:
-                break;
-        
-        }
+        //     case "writer_name":                    
+        //         this.roundList.push({
+        //             "input" : "none",
+        //             "output": "write",
+        //             "label": "writer_first"
+        //         });
+        //         for(var i = 1; i < (this.players.length + this.game_interface.extraRounds); i++) {
+        //             this.roundList.push({
+        //                 "input" : "write",
+        //                 "output": "write",
+        //                 "label": "writer_round"
+        //             })
+        //         }
+        //         break;
+        //     default:
+        //         break;        
+        // }
         console.log("ROUND LIST IS:")
-        console.log(this.roundList)
+        // console.log(this.roundList)
         this.roundPlayerList = [...this.players]
         console.log(this.playerConns)
         this.roundPlayerConns = [false]
@@ -822,9 +850,9 @@ class Game {
             case "faceoff":
                 return "versus"
                 break;
-
-            case "writer_name":
-                return "writer"
+            
+            case "time_travel":
+                return "time_travel"
                 break
             default:
                 return "NOTHING???? Gamemode is " + this.current_gamemode
@@ -838,16 +866,15 @@ class Game {
 
     hostNextRound(firstRound) {
         console.log("hostNextRound")
-        console.log(this.roundList)
+        // console.log(this.roundList)
         console.log(this.gameResults)
         console.log(firstRound)
-        if(this.roundList.length) {
-            console.log("roundlist length")
-            var round = this.roundList.shift();
-            console.log("Hosting next round, round is : ")
-            console.log(round)            
+        if(this.roundsLeft > 0) {
+            // console.log("roundlist length")
+            // var round = this.roundList.shift();            
             this.readySet.clear();
-            this.sendStartRound(round, firstRound)
+            this.roundsLeft--;
+            this.sendStartRound(firstRound)
         } else {
             console.log("Done!!")
             this.hostSendFinishGame(this.getFinalsStyle());
@@ -924,6 +951,36 @@ class Game {
                     "label": "versus_first"
                 }
                 break;
+
+            case "time_travel":
+                if(!roundData) return {
+                    "input" : "none",
+                    "output": "drawAndName",
+                    "label": "time_travel_first"
+                }
+                if(roundData.draw && roundData.write) {
+                    if(roundData.solution) {
+                        return {
+                            "input" : "drawAndName",
+                            "output": "drawAndName",
+                            "label": "time_travel_problem",
+                            "solution": false
+                        }
+                    }
+                    return {
+                        "input" : "drawAndName",
+                        "output": "drawAndName",
+                        "label": "time_travel_solution",
+                        "solution": true,
+                    }
+                }
+                
+                return {
+                    "input" : "none",
+                    "output": "drawAndName",
+                    "label": "versus_first"
+                }
+                break;
             
             case "writer_name":
                 if(!roundData) return {
@@ -948,7 +1005,7 @@ class Game {
         return null;
     }
 
-    sendStartRound(round, firstRound) {
+    sendStartRound(firstRound) {
         console.log(this.roundPlayerConns)
         console.log("There are " + this.roundPlayerConns.length + " conns")
         let characters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
@@ -1282,6 +1339,15 @@ class Game {
                 }
 
             case "drawAndName":
+                if(this.current_gamemode == "time_travel") {
+                    return {
+                        "user": this.name,
+                        "draw" : this.game_interface.getOutputDraw(),
+                        "write": this.game_interface.getOutputWrite(),
+                        "roundKey": this.roundKey,
+                        "solution": true
+                    }    
+                }
                 return {
                     "user": this.name,
                     "draw" : this.game_interface.getOutputDraw(),
@@ -1516,7 +1582,7 @@ class GameInterface {
         this.finalsDiv = document.getElementById("finals-div");
         this.chatHolder = document.getElementById("chat-holder");
         this.versusHolder = document.getElementById("versus-holder");        
-        this.writerHolder = document.getElementById("writer-holder");        
+        // this.writerHolder = document.getElementById("writer-holder");        
         this.versusBall = document.getElementById("versus-ball");        
         this.colorHolder = document.getElementById("color-holder");
         this.widthHolder = document.getElementById("width-holder");
@@ -1642,13 +1708,13 @@ class GameInterface {
             this.changeGameListFocus(1)            
             game.sendChooseGame(1);
         })
-        this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
-        this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
-        this.listRowChildren[2].children[0].addEventListener("click",() => {
-            if(!game.is_host) return;
-            this.changeGameListFocus(2)            
-            game.sendChooseGame(2);
-        })
+        // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
+        // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
+        // this.listRowChildren[2].children[0].addEventListener("click",() => {
+        //     if(!game.is_host) return;
+        //     this.changeGameListFocus(2)            
+        //     game.sendChooseGame(2);
+        // })
         // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
         // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
         // this.listRowChildren[2].children[0].addEventListener("click",() => {
@@ -2341,17 +2407,12 @@ class GameInterface {
             this.chatHolder.classList.add("d-flex");
             this.chatHolder.classList.remove("d-none");
             this.versusHolder.classList.remove("d-flex");
-            this.versusHolder.classList.add("d-none");
-            this.writerHolder.classList.remove("d-flex");
-            this.writerHolder.classList.add("d-none");
+            this.versusHolder.classList.add("d-none");            
             document.getElementById("game-results").classList.remove("d-none")
         } else if(style == "versus") {
             document.getElementById("game-results").classList.add("d-none")
             this.chatHolder.classList.add("d-none");
-            this.chatHolder.classList.remove("d-flex");
-
-            this.writerHolder.classList.remove("d-flex");
-            this.writerHolder.classList.add("d-none");
+            this.chatHolder.classList.remove("d-flex");            
 
             this.versusHolder.classList.add("d-flex");
             this.versusHolder.classList.remove("d-none");
@@ -2361,8 +2422,6 @@ class GameInterface {
             this.chatHolder.classList.remove("d-flex");
             this.versusHolder.classList.remove("d-flex");
             this.versusHolder.classList.add("d-none");
-            this.writerHolder.classList.remove("d-none");
-            this.writerHolder.classList.add("d-flex");
         }
         this.rockyNoise.load();
         this.rockyNoise.play();
