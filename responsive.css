@@ -133,6 +133,7 @@
           conic-gradient(from -135deg at right,#0000,#000 1deg 89deg,#0000 90deg) 
             50%/100% calc(2*var(--z)) repeat-y;
         background-color: var(--blue-light);
+        border-radius: 10px 0 0 10px;
         
     }
     .gallery > div:nth-child(2) {
@@ -142,6 +143,7 @@
           conic-gradient(from   45deg at left ,#0000,#000 1deg 89deg,#0000 90deg) 
             50% calc(50% - var(--z))/100% calc(2*var(--z)) repeat-y;
         background-color: var(--red-light);
+        border-radius: 0 10px 10px 0;
     }
     
     /* .gallery-inactive > div {
@@ -233,6 +235,20 @@
             transform: translate(0px, 0px) rotate(0deg);
             animation-timing-function: ease;
         }
+    }
+
+
+
+    #time-travel-holder {
+        width: 100%;        
+        max-width: 90vh;
+    }
+    #tv {
+        background-image: url(assets/tv.png);
+        background-size: contain;
+    }
+    #tv-contents > div {        
+        height: calc(100% - min(7.5vh, 22.5vw));        
     }
 }
 
@@ -399,5 +415,21 @@
     
     @keyframes headButtRight {
         
+    }
+
+    #time-travel-holder {
+        width: 100%;        
+        max-width: 90vh;
+    }
+    #tv {
+        background-image: url(assets/tv.png);
+        background-size: contain;
+    }
+    #tv-contents > div {        
+        height: calc(100% - min(7.5vh, 22.5vw));        
+    }
+
+    .background li {
+        display: none;
     }
 }   

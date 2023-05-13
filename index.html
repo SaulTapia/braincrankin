@@ -10,15 +10,24 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
-    <link rel="stylesheet" href="style.css?v=19-03-23/2">
-    <link rel="stylesheet" href="responsive.css?v=19-03-23/2">
-    <link rel="stylesheet" href="sass.css?v=19-03-23/2">
+    <link rel="stylesheet" href="style.css?v=03/04/23-3">
+    <link rel="stylesheet" href="responsive.css?v=03/04/23-3">
+    <link rel="stylesheet" href="sass.css?v=03/04/23-3">
     <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
     <meta name="description" content="Draw with your friends! Play and make the most hilarious drawings.">
     <title>Brain Crankin</title><!-- CSS only -->
     
 </head>
 <body class="h-100">
+    <div class="time-travel-clock-holder">
+        <div id="foreground">
+    
+        </div>
+        <div id="time-travel-clock" class="">
+            <div id="seconds" class="seconds-forward"></div>
+            <div id="hours" class="hours-forward"></div>
+        </div>
+    </div>
     <ul class="background">
         <li></li>
         <li></li>
@@ -27,39 +36,11 @@
         <li></li>
         <li></li>
         <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-        <li></li>
-     </ul>
+        <li></li>        
+    </ul>
     <main class="h-100">
         <div class="h-100 game-box">
-            <div class="container h-100 game-div border-main m-mobile-0 p-mobile-0">
+            <div id="game-div" class="container h-100 game-div border-main m-mobile-0 p-mobile-0">
                 
                 <!-- <button id="host-button" class="button-anim">Host a game</button>
                 <button id="quit-button" class="button-anim">Go back</button>
@@ -75,8 +56,8 @@
                             <img src="assets/caret-left-fill.svg" alt="" class="img-fluid">
                         </button>
                     </div>                    
-                    <h1 class="col-8 col-lg-10 text-center">Brain Crankin</h1>
-                    <h5 class="col-2 col-lg-1 d-none d-lg-block">Alpha 3.5.0</h5>
+                    <h1 class="col-8 col-lg-10 text-center neon-color">Brain Crankin</h1>
+                    <h5 class="col-2 col-lg-1 d-none d-lg-block neon-color">Alpha 4.5.2</h5>
                 </div>
                 <div id="main-container" class="row h-100 h-lg-90 overflow-lg-hidden">
                     <div id="player-list" class="d-none mh-100 col-12 col-lg-4 d-flex flex-column align-items-center">
@@ -160,12 +141,12 @@
                                         <p>a</p>
                                     </button>
                                 </li>                                
-                                <!-- <li class="game-list-container col-lg-4 col-md-6 col-12">
+                                <li class="game-list-container col-lg-4 col-md-6 col-12">
                                     <button class="btn btn-primary sass-button draw meet game-list-item d-flex flex-column justify-content-around">
                                         <h3>a</h3>
                                         <p>a</p>
                                     </button>
-                                </li> -->
+                                </li>
                             </div>
                         </ul>
                         <div class="container h-25" id="settings-container">
@@ -192,7 +173,7 @@
                     <div id="join-div" class="animate__bounceIn m-0 p-0 col-12 d-flex justify-content-center align-items-center">
                         <div class="main-menu-box d-flex flex-column flex-lg-row justify-content-center align-items-around">
                             <div class="w-lg-50 w-100 d-flex align-items-center justify-content-center">
-                                <h1 id="nickname-label" class="text-center" >Choose a nickname</h1>
+                                <h1 id="nickname-label" class="text-center neon-color" >Choose a nickname</h1>
                             </div>                                                        
                             <div class="w-lg-50 w-100 d-flex flex-column justify-content-center align-items-center p-3">
                                 <input type="text" id="namebox" maxlength="20" class="text-input"></input>
@@ -204,20 +185,20 @@
                     </div>
                     <div id="input-div" class="animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
                         <h1 id="input-div-label"></h1>
-                        <p id="input-write-div">
+                        <h2 id="input-write-div">
 
-                        </p>
-                        <div id="input-draw-div" class="mw-100 mh-100">
+                        </h2>
+                        <div id="input-draw-div" class="mw-100">
 
                         </div>
-                        <button id="end-input-btn" class="btn btn-primary">Go!</button>
+                        <button id="end-input-btn" class="btn btn-primary"><h4>Go!</h4></button>
                     </div>
                     <div id="output-div" class="h-100 animate__bounceIn d-none flex-column col-12 text-center justify-content-center align-items-center mh-100">
                         <h1 id="output-div-label" class="animate__bounceIn mb-1"></h1>
                         <div id="output-img-div" class="animate__bounceIn drawing-style">
                         </div>
                         <div id="output-write-div" class="animate__bounceIn">
-                            <input type="text" name="" id="output-write-area" cols="20" rows="1" class="text-input"></input>
+                            <input type="text" name="" id="output-write-area" cols="35" rows="1" class="text-input"></input>
                         </div>
                         <div id="output-draw-div" class="animate__bounceIn h-85 d-flex flex-column justify-content-center align-items-center w-mobile-100 w-lg-90 mh-100 m-0">
                             <h5 id="output-draw-label"></h5>
@@ -228,7 +209,7 @@
                                     </div>
                                 </div>
                                 <div id="canvas-holder" class="drawing-style w-mobile-100 w-lg-90 h-100">
-                                    <!-- <img src="" id="canvas-background" alt="" class="drawing-fit"> -->
+                                    <!-- <div src="" id="canvas-background" alt="" class="drawing-fit"> -->
                                     <canvas id="main-canvas" class="h-100 w-100">
                                     </canvas>
                                 </div>
@@ -239,8 +220,8 @@
                         </div>
                         <button id="output-button" class="btn btn-primary m-1"><h4>Done</h4></button>
                     </div>
-                    <div id="finals-div" class="d-none col-12 justify-content-center align-items-center mh-100">
-                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">                            
+                    <div id="finals-div" class="d-none col-12 p-0 justify-content-center align-items-center mh-100">
+                        <div id="finals-box" class="d-flex justify-content-center align-items-center flex-column p-0 mh-100">
                             <div class="d-flex justify-content-center">
                                 <!-- <div></div> -->
                                 <h1 id="game-results"></h1>
@@ -298,6 +279,16 @@
                                     <img id="versus-ball" src="assets/versus ball.png" alt="" class="d-none">
                                 </div>
                             </div>
+                            <div id="time-travel-holder" class="d-none">
+                                <div id="tv" class="ratio ratio-1x1">
+                                    <div id="tv-contents" class="h-100 w-100 m-0">
+                                        <p id="tv-title" class="m-0"></p>
+                                        <div class="w-100" id="tv-image-holder">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- <div id="writer-holder" class="h-100 w-100 flex-column align-items-center d-none">
                                 <div class="w-80 d-flex flex-column-reverse"></div>
                                 <button id="writer-button"></button>
@@ -342,7 +333,7 @@
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <!-- <script src="game.js"></script> -->
-    <script src="game.js?v=19-03-23/2"></script>
+    <script src="game.js?v=03/04/23-3"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4818331036577014"
      crossorigin="anonymous"></script>
 </body>

@@ -33,6 +33,11 @@ var lang = {
         "writer_desc": "Take turns finishing each other's sentences to write a crazy story!",
         "writer_first": "Write the start of the story!",
         "writer_round": "Continue the story!",
+        "time_travel": "Time-traveling Troubles",
+        "time_travel_desc": "Fix problems by going to the past!",
+        "time_travel_first": "Describe and draw a problematic situation",
+        "time_travel_solution": "Prevent this from happening by traveling to the past!",
+        "time_travel_problem": "What future consequences will this have?"
     },
     "es": {
         "no_name_error" : "No se recibió un nombre.",
@@ -68,6 +73,11 @@ var lang = {
         "writer_desc": "Complementa las historias de otras personas para escribir juntos una historia loca!",
         "writer_first": "Escribe el inicio de la historia",
         "writer_round": "Continúa la historia!",
+        "time_travel": "Tiempo Fuera",
+        "time_travel_desc": "Arregla problemas yendo al pasado!",
+        "time_travel_first": "Describe y dibuja una situación problemática",
+        "time_travel_solution": "¡Evita que esto pase yendo al pasado!",
+        "time_travel_problem": "¿Qué consecuencia tendrá esto?"
     }
 }
 
@@ -85,12 +95,12 @@ const gameModes = [
         "gameStyle" : "versus",
         "time-limit-secs": 40
     },
-    // {
-    //     "name" : "time_travel",
-    //     "desc" : "time_travel",
-    //     "gameStyle" : "time_travel",
-    //     "time-limit-secs": 40
-    // },
+    {
+        "name" : "time_travel",
+        "desc" : "time_travel_desc",
+        "gameStyle" : "time_travel",
+        "time-limit-secs": 40
+    },
     // {
     //     "name" : "news",
     //     "desc" : "news_desc",
@@ -183,7 +193,712 @@ if(!(lang[language])) {
 }
 console.log("Language is: " + language)
 
+class IdeaGenerator
+{
+    constructor() {
+        this.ideaData = {
+            "en": {            
+                "idea": [
+                    "%creature% at %place%",
+                    "%creature% in %region%",
+                    "%adjective% %creature% at %place%",
+                    "%adjective% %creature% in %region%",
+                    "%creature% %doing x% at %place%",
+                    "%creature% %doing x% in %region%",
+                    "%adjective% %creature% %doing x% at %place%",
+                    "%adjective% %creature% %doing x% in %region%",
+                ],
+                "character": [
+                    "%superlative% %creature% ever",
+                    "the %single attribute% %creature%",
+                    "the %item% %title%",
+                ],
+                "problem": [
+                    "the downfall of every %creature%",
+                    "%character% %aggression%",
+                ],
+                "solution": [
+                    "%aggression_general% %region%",
+                    "%aggression_general% %character%",
+                    "%action% at %place%",
+                    "%action% in %region%",
+                    "%prohibition% %doing x%",
+                    "%prohibition% %doing x% at %place%",
+                    "%prohibition% %doing x% in %region%",
+                ],
+                "prohibition": [
+                    "ban",
+                    "encourage",
+                    "outlaw",
+                    "demonize",
+                    "discourage",
+                    "praise",                
+                ],
+                "action": [
+                    "yell",
+                    "talk",
+                    "walk",
+                    "jump",
+                    "work",
+                    "record",
+                    "investigate",
+                    "fight",
+                    "draw",
+                    "sit",
+                    "dance",
+                    "sing",
+                ],
+                "good_general": [
+                    "restore",
+                    "praise",
+                    "thank",
 
+                ],
+                "aggression_general": [
+                    "blow up",
+                    "destroy",
+                    "burn",
+                    "flood",
+                    "attack",                
+                    "delete",
+                ],
+                "aggression": [
+                    "attacks",
+                    "invades",
+                    "dies",
+                    "explodes",
+                    "snaps",
+                ],
+                "creature": [
+                    "man",
+                    "woman",
+                    "person",
+                    "goblin",
+                    "human",
+                    "demon",
+                    "angel",
+                    "ghost",
+                    "robot",
+                    "alien",
+                    "zombie",
+                    "wolf",
+                    "dog",
+                    "penguin",
+                    "king",
+                    "queen",
+                    "tree",
+                    "ogre",
+                    "hamster",
+                    "dragon",
+                    "wizard",
+                    "sorcerer",
+                    "warrior",
+                    "turtle",
+                    // "god",
+                    "fish",
+                    "bird",
+                    "duck",
+                    "bug",
+                    "spider",
+                    "bear",
+                    "plant",
+                    "lady",
+                    "businessman",
+                    // "millionaire",
+                    "mercenary",
+                    "priest",
+                    // "cultist",
+                    // "tyrant",
+                    "loser",
+                    "bee",
+                    "flower",
+                    "snake",
+                    "spy",
+                    // "communist",
+                    "chef",
+                    "thief",
+                    // "police officer",
+                    "mushroom",
+                    "bacteria",
+                    // "parasite",
+                    "werewolf",
+                    "rat",
+                    "fairy",
+                    "cat",
+                    "frog",
+                    "witch",
+                    // "lord",
+                    "dwarf",
+                    "shark",
+                    "monkey",
+                    "president",
+                    "agent",
+                    "monster",
+                    "astronaut",
+                    "scientist",
+                    "programmer",
+                    "explorer",
+                    // "%element%bender",
+                    "elf",
+                    "cowboy",
+                    "dinosaur",
+                    "cow",
+                    "cowboy",
+                    "unicorn",
+                    // "soldier",
+                    "crow",
+                    "skeleton",
+                    "bandit",
+                    "chicken",
+                    "crab",
+                    "mammoth",
+                    "squid",
+                    "cyclops",
+                    "phoenix",
+                    "dolphin",
+                    "mermaid",
+                    "cyborg",
+                    // "%element% elemental",
+                    "spirit",
+                    // "%element% spirit",
+                    "student",
+                    "teacher",
+                    "doctor",
+                    "musician",
+                    "dancer",
+                    "singer",
+                    "mother",
+                    "poet",
+                    "writer",                
+                    "bug",
+                    "insect",
+                    "mathematician",
+                    "ninja",
+                    "samurai",
+                    "physicist",
+                    "pony",
+                    "sheep",
+                    "computer",
+                    "vamipre",
+                    "artist",
+                    "rabbit",
+                    "yeti",
+                    "serpent",
+                    "minotaur",
+                    "golem",
+                    "eagle",
+                    "bat",
+                    "beast",
+                    "seal",
+                    "beetle",
+                    "alligator"
+                ],
+                "single attribute": [                
+                    "%supreme attribute%",
+                    "%superlative%",
+                    "%adjective%",                
+                ],
+                "supreme attribute": [
+                    "supreme",
+                    "ultimate",
+                    "incredible",                
+                ],
+                "superlative": [
+                    "best",
+                    "worst",
+                    "saddest",
+                    "angriest",
+                    "happiest",
+                    "most insane",
+                    "maddest",
+                    "most giant",
+                    "most anxious",
+                    "coolest",
+                    "most awesome",
+                    "craziest",
+                    "wildest",
+                    "most savage",
+                    "most muscular",
+                    "smartest",
+                    "most intelligent",
+                    "strongest",
+                    "weakest",
+                    "funniest",
+                    "goofiest",
+                    "scariest",
+                    "tallest",
+                    "shortest",
+                    "greatest",
+                    "holiest",
+                    "most evil",
+                ],
+                "adjective": [
+                    "sad",
+                    "angry",
+                    "happy",
+                    "insane",
+                    "mad",
+                    "giant",
+                    "anxious",
+                    "cool",
+                    "awesome",
+                    "crazy",
+                    "wild",
+                    "savage",
+                    "muscular",
+                    "smart",
+                    "intelligent",
+                    "strong",
+                    "weak",
+                    "funny",
+                    "goofy",
+                    "scary",
+                    "tall",
+                    "short",
+                    "great",
+                    "holy",
+                    "evil",
+                ],
+                "doing x": [
+                    "yelling",
+                    "talking",
+                    "walking",
+                    "jumping",
+                    "working",
+                    "recording",
+                    "investigating",
+                    "fighting",
+                    "drawing",
+                    "sitting",
+                    "dancing",
+                    "singing",
+                    "gaming",
+                    "dying",                
+                ],
+                "item": [
+                    "fruit",
+                    "computer",
+                    "cup",
+                    "broom",
+                    "dumbbell",
+                    "fork",
+                    "spoon",
+                    "table",
+                    "chair",
+                    "tree",
+                    "pear",
+                    "book",
+                    "cable",
+                    "peanut",
+                    "knife",
+                    "car",
+                    "plane",
+                    "train",
+                    "egg",
+                    "ladder",
+                    "bottle",
+                    "glass",
+                    "ruler",
+                    "shoe",
+                    "shirt",
+                    "plate",
+                    "microphone",
+                    "speaker",
+                    "guitar",                
+                ],
+                "title": [
+                    "dealer",
+                    "maniac",
+                    "enthusiast",
+                    "enjoyer",
+                    "fanatic",
+                    "trafficker",                
+                ],
+                "place": [ // At [place]
+                    "the park",
+                    "the library",
+                    "a golf club",
+                    "work",
+                    "school",
+                ],
+                "region": [ // In [region]
+                    "space",
+                    "the wild",
+                    "the desert",
+                    "the jungle",
+                    "a cave",
+                    "the office",
+                ]
+            },
+            // "es": {
+            //     "idea": [
+            //         "%creature% en %place%",                    
+            //         "%creaturePlusAdjective% en %place%",                    
+            //         "%uncreature% %doing x% en %place%",                                        
+            //         "%creaturePlusAdjective% %doing x% en %place%",                    
+            //     ],
+            //     "creaturePlusAdjective": [
+            //         "%creatureMale% %adjectiveMale%",
+            //         "%creatureFemale% %adjectiveFemale%",
+            //     ],
+            //     "uncreature": [
+            //         "un %creatureMale%",
+            //         "una %creatureFemale",
+            //     ],
+            //     "character": [
+            //         "el %creatureMale% más %superlativeMale%",                    
+            //         "el %creatureMale% %single attribute%",
+            //         "el %titleMale% de %item%",
+            //         "la %creatureFemale% más %superlativeFemale%",                    
+            //         "la %creatureFemale% %single attribute%",
+            //         "el %titleFemale% de %item%",
+            //     ],
+            //     "problem": [
+            //         "La caída de cada %creature%",                    
+            //         "%character% %aggression%",
+            //     ],
+            //     "solution": [
+            //         "%aggression_general% %place%",
+            //         "%aggression_general% %character%",
+            //         "%action% en %place%",                    
+            //         "%prohibition% %doing x%",
+            //         "%prohibition% %doing x% at %place%",                    
+            //     ],
+            //     "prohibition": [
+            //         "ban",
+            //         "encourage",
+            //         "outlaw",
+            //         "demonize",
+            //         "discourage",
+            //         "praise",                
+            //     ],
+            //     "action": [
+            //         "yell",
+            //         "talk",
+            //         "walk",
+            //         "jump",
+            //         "work",
+            //         "record",
+            //         "investigate",
+            //         "fight",
+            //         "draw",
+            //         "sit",
+            //         "dance",
+            //         "sing",
+            //     ],
+            //     "good_general": [
+            //         "restore",
+            //         "praise",
+            //         "thank",
+
+            //     ],
+            //     "aggression_general": [
+            //         "blow up",
+            //         "destroy",
+            //         "burn",
+            //         "flood",
+            //         "attack",                
+            //         "delete",
+            //     ],
+            //     "aggression": [
+            //         "attacks",
+            //         "invades",
+            //         "dies",
+            //         "explodes",
+            //         "snaps",
+            //     ],
+            //     "creature": [
+            //         "man",
+            //         "woman",
+            //         "person",
+            //         "goblin",
+            //         "human",
+            //         "demon",
+            //         "angel",
+            //         "ghost",
+            //         "robot",
+            //         "alien",
+            //         "zombie",
+            //         "wolf",
+            //         "dog",
+            //         "penguin",
+            //         "king",
+            //         "queen",
+            //         "tree",
+            //         "ogre",
+            //         "hamster",
+            //         "dragon",
+            //         "wizard",
+            //         "sorcerer",
+            //         "warrior",
+            //         "turtle",
+            //         // "god",
+            //         "fish",
+            //         "bird",
+            //         "duck",
+            //         "bug",
+            //         "spider",
+            //         "bear",
+            //         "plant",
+            //         "lady",
+            //         "businessman",
+            //         // "millionaire",
+            //         "mercenary",
+            //         "priest",
+            //         // "cultist",
+            //         // "tyrant",
+            //         "loser",
+            //         "bee",
+            //         "flower",
+            //         "snake",
+            //         "spy",
+            //         // "communist",
+            //         "chef",
+            //         "thief",
+            //         // "police officer",
+            //         "mushroom",
+            //         "bacteria",
+            //         // "parasite",
+            //         "werewolf",
+            //         "rat",
+            //         "fairy",
+            //         "cat",
+            //         "frog",
+            //         "witch",
+            //         // "lord",
+            //         "dwarf",
+            //         "shark",
+            //         "monkey",
+            //         "president",
+            //         "agent",
+            //         "monster",
+            //         "astronaut",
+            //         "scientist",
+            //         "programmer",
+            //         "explorer",
+            //         // "%element%bender",
+            //         "elf",
+            //         "cowboy",
+            //         "dinosaur",
+            //         "cow",
+            //         "cowboy",
+            //         "unicorn",
+            //         // "soldier",
+            //         "crow",
+            //         "skeleton",
+            //         "bandit",
+            //         "chicken",
+            //         "crab",
+            //         "mammoth",
+            //         "squid",
+            //         "cyclops",
+            //         "phoenix",
+            //         "dolphin",
+            //         "mermaid",
+            //         "cyborg",
+            //         // "%element% elemental",
+            //         "spirit",
+            //         // "%element% spirit",
+            //         "student",
+            //         "teacher",
+            //         "doctor",
+            //         "musician",
+            //         "dancer",
+            //         "singer",
+            //         "mother",
+            //         "poet",
+            //         "writer",                
+            //         "bug",
+            //         "insect",
+            //         "mathematician",
+            //         "ninja",
+            //         "samurai",
+            //         "physicist",
+            //         "pony",
+            //         "sheep",
+            //         "computer",
+            //         "vamipre",
+            //         "artist",
+            //         "rabbit",
+            //         "yeti",
+            //         "serpent",
+            //         "minotaur",
+            //         "golem",
+            //         "eagle",
+            //         "bat",
+            //         "beast",
+            //         "seal",
+            //         "beetle",
+            //         "alligator"
+            //     ],
+            //     "single attribute": [                
+            //         "%supreme attribute%",
+            //         "%superlative%",
+            //         "%adjective%",                
+            //     ],
+            //     "supreme attribute": [
+            //         "supreme",
+            //         "ultimate",
+            //         "incredible",                
+            //     ],
+            //     "superlative": [
+            //         "best",
+            //         "worst",
+            //         "saddest",
+            //         "angriest",
+            //         "happiest",
+            //         "most insane",
+            //         "maddest",
+            //         "most giant",
+            //         "most anxious",
+            //         "coolest",
+            //         "most awesome",
+            //         "craziest",
+            //         "wildest",
+            //         "most savage",
+            //         "most muscular",
+            //         "smartest",
+            //         "most intelligent",
+            //         "strongest",
+            //         "weakest",
+            //         "funniest",
+            //         "goofiest",
+            //         "scariest",
+            //         "tallest",
+            //         "shortest",
+            //         "greatest",
+            //         "holiest",
+            //         "most evil",
+            //     ],
+            //     "adjective": [
+            //         "sad",
+            //         "angry",
+            //         "happy",
+            //         "insane",
+            //         "mad",
+            //         "giant",
+            //         "anxious",
+            //         "cool",
+            //         "awesome",
+            //         "crazy",
+            //         "wild",
+            //         "savage",
+            //         "muscular",
+            //         "smart",
+            //         "intelligent",
+            //         "strong",
+            //         "weak",
+            //         "funny",
+            //         "goofy",
+            //         "scary",
+            //         "tall",
+            //         "short",
+            //         "great",
+            //         "holy",
+            //         "evil",
+            //     ],
+            //     "doing x": [
+            //         "yelling",
+            //         "talking",
+            //         "walking",
+            //         "jumping",
+            //         "working",
+            //         "recording",
+            //         "investigating",
+            //         "fighting",
+            //         "drawing",
+            //         "sitting",
+            //         "dancing",
+            //         "singing",
+            //         "gaming",
+            //         "dying",                
+            //     ],
+            //     "item": [
+            //         "fruit",
+            //         "computer",
+            //         "cup",
+            //         "broom",
+            //         "dumbbell",
+            //         "fork",
+            //         "spoon",
+            //         "table",
+            //         "chair",
+            //         "tree",
+            //         "pear",
+            //         "book",
+            //         "cable",
+            //         "peanut",
+            //         "knife",
+            //         "car",
+            //         "plane",
+            //         "train",
+            //         "egg",
+            //         "ladder",
+            //         "bottle",
+            //         "glass",
+            //         "ruler",
+            //         "shoe",
+            //         "shirt",
+            //         "plate",
+            //         "microphone",
+            //         "speaker",
+            //         "guitar",                
+            //     ],
+            //     "title": [
+            //         "dealer",
+            //         "maniac",
+            //         "enthusiast",
+            //         "enjoyer",
+            //         "fanatic",
+            //         "trafficker",                
+            //     ],
+            //     "place": [ // At [place]
+            //         "the park",
+            //         "the library",
+            //         "a golf club",
+            //         "work",
+            //         "school",
+            //     ],
+            //     "region": [ // In [region]
+            //         "space",
+            //         "the wild",
+            //         "the desert",
+            //         "the jungle",
+            //         "a cave",
+            //         "the office",
+            //     ]                
+            // }
+        }
+    }
+    processIdea(idea) {
+        console.log("Processing: " + idea);
+        let sample = "";
+        // This function is meant to be called with a single symbol
+        let ideaLimit = idea.length;
+        let cntr = 0;
+        let last = 0;
+    
+        for (let i = 0; i < ideaLimit; i++) {
+            if (idea[i] == "%") {
+                cntr++;
+                if (cntr % 2 == 0) {
+                    let samp = idea.slice(last + 1, i);
+                    sample = this.ideaData["en"][samp][Math.floor(Math.random() * this.ideaData["en"][samp].length)];
+                    idea = [
+                        idea.slice(0, last),
+                        this.processIdea(sample),
+                        idea.slice(i + 1),
+                    ].join("");
+            
+                    ideaLimit = idea.length;
+                    i = last;
+                }
+                last = i;
+            }
+        }
+        return idea;
+    }    
+}
 
 class Player
 {
@@ -196,8 +911,8 @@ class Player
 
 class OrderedPeer
 {
-    constructor() {
-        this.peer = new Peer();
+    constructor() {        
+        this.peer = new Peer();        
         this.currently_expecting = 0;
         this.biggest_current = -1;
         this.present_object = {};                        
@@ -283,7 +998,7 @@ class ConnWrapper
 }
 
 class Game {
-    constructor() {
+    constructor() {        
         this.remaining_rounds = 0
         this.chosen_game = -1;
         this.self_index = 0;
@@ -459,6 +1174,9 @@ class Game {
                 game.is_host = false;
                 game.game_started = false;
             })
+            this.peer.on('disconnected', function(id) {
+                game.peer.reconnect()
+            })
             this.conn_to_host.on("data", (data) => {
                 console.log("Got DATA!")
                 console.log(data)
@@ -538,7 +1256,8 @@ class Game {
             })
         })
     }
-    
+
+
                 
     be_host() {
         this.is_host = true;
@@ -548,6 +1267,9 @@ class Game {
         this.players.push(new Player(this.peer.id, this.name, true));
         this.game_interface.updatePlayers()
         console.log("Chose to be host!")
+        this.peer.on('disconnected', function(id) {
+            game.peer.reconnect()
+        })
         this.peer.on('connection', function(conn) {            
             console.log("connection startedd")
             conn.on('open', () => {                            
@@ -953,13 +1675,16 @@ class Game {
                 break;
 
             case "time_travel":
+                console.log("Makin time travel round")
                 if(!roundData) return {
                     "input" : "none",
                     "output": "drawAndName",
-                    "label": "time_travel_first"
+                    "label": "time_travel_first",
+                    "solution": false
                 }
                 if(roundData.draw && roundData.write) {
-                    if(roundData.solution) {
+                    if(roundData.solution == true) {
+                        console.log("ROUND DATA HAD SOLUTION WHAT")
                         return {
                             "input" : "drawAndName",
                             "output": "drawAndName",
@@ -967,7 +1692,8 @@ class Game {
                             "solution": false
                         }
                     }
-                    return {
+                        console.log("ROUND DATA DID NOT HAVE SOLUTION, NOW SEND IT WITH A SOLUTION")
+                        return {
                         "input" : "drawAndName",
                         "output": "drawAndName",
                         "label": "time_travel_solution",
@@ -1053,7 +1779,8 @@ class Game {
         }
     }
 
-    startRound(round, roundData, firstRound) {        
+    startRound(round, roundData, firstRound) {
+        this.game_interface.enableGameStyles()
         console.log("Startround with data " + roundData)
         this.game_interface.resetOutputDiv();
         this.game_interface.resetInputDiv();
@@ -1074,7 +1801,7 @@ class Game {
             case "write":
                 this.game_interface.showInputDiv();
                 this.game_interface.showInputWriteDiv(roundData.write);
-                this.game_interface.setInputDivLabel(lang[language][round.label]);
+                this.game_interface.setInputDivLabel(lang[language][round.label]);                
                 break;
             case "draw":
                 if(round.output == "write") {
@@ -1083,6 +1810,9 @@ class Game {
                     this.game_interface.showInputDiv();
                     this.game_interface.showInputDrawDiv();
                     this.game_interface.setInputDivLabel(lang[language][round.label]);
+                    if(round.output == "draw" || round.output == "drawAndName") {
+                        this.game_interface.setOutputDrawBackground(roundData.draw)
+                    }
                 }
                 break;
             case "drawAndName":
@@ -1090,6 +1820,9 @@ class Game {
                 this.game_interface.showInputWriteDiv(roundData.write);
                 this.game_interface.showInputDrawDiv(roundData.draw);
                 this.game_interface.setInputDivLabel(lang[language][round.label]);
+                if(round.output == "draw" || round.output == "drawAndName") {
+                    this.game_interface.setOutputDrawBackground(roundData.draw)
+                }
                 break;
         }
         switch(round.output) {
@@ -1101,11 +1834,15 @@ class Game {
                 }
                 this.game_interface.showOutputWriteDiv();
                 this.game_interface.setOutputDivLabel(lang[language][round.label]);
+                console.log("Label is " + round.label)
+                if(round.label == "write_prompt") {
+                    this.game_interface.makeInputPlaceholder("%idea%")
+                }
                 break;
             case "draw":
                 if(round.input == "write") {
                     this.game_interface.showOutputDrawDiv(roundData.write);
-                } else {
+                } else {                    
                     this.game_interface.showOutputDrawDiv();
                 }
                 this.game_interface.set_canvas = true;
@@ -1113,20 +1850,40 @@ class Game {
                 break;
                 
             case "drawAndName":
+                if(round && round.solution) {
+                    console.log("Solution set as TRUE!!!!!!!!!")
+                    console.log("Aight label is " + round.label)
+                    if(round.label == "time_travel_solution") {
+                        console.log("We're doin it")
+                        this.game_interface.makeInputPlaceholder("%solution%")
+                    }
+                    this.is_solution = true
+                } else {
+                    if(round.label == "time_travel_first" || round.label == "time_travel_problem") {
+                        this.game_interface.makeInputPlaceholder("%problem%")
+                    }
+                    console.log("Solution set as FALSEEEEEEEEEEEEEEE!!!!!!!!!")
+                    this.is_solution = false                    
+                }
                 this.game_interface.showOutputWriteDiv();
                 this.game_interface.showOutputDrawDiv();                    
                 this.game_interface.setOutputDivLabel(lang[language][round.label])
 
+                console.log("Label is " + round.label)
+                if(round.label == "versus_first" || round.label == "versus_fight") {
+                    this.game_interface.makeInputPlaceholder("%character%")
+                }
                 if(round.input == "none") {
                     this.game_interface.showOutputDiv();
                     this.game_interface.setupCanvas();
                 } else {
+                    
                 }
                 break;
+            }
         }
-    }
 
-    sendReadyToHost(outputData) {
+        sendReadyToHost(outputData) {
         if(!this.is_host) {
             this.conn_to_host.send({
                 "type": "ready",
@@ -1253,16 +2010,21 @@ class Game {
         if(this.readySet.has(peerId)) {
             return false;
         }
-        this.readySet.add(peerId);        
+        this.readySet.add(peerId);  
+        let found = false      
         for(let i = 0; i < this.roundPlayerMatches.length; i++) {
             if(peerId == this.roundPlayerMatches[i].peerId) {
-                console.log(this.roundPlayerMatches[i].name)
+                console.log(this.roundPlayerMatches[i].name + ", id is " + this.roundPlayerMatches[i].peerId)
                 this.gameResults[i].push({
                     "name" : this.roundPlayerMatches[i].name,
                     ...outputData
-                });                
+                });      
+                found = true          
                 break;
             }
+        }
+        if(!found) {
+            console.log("We did not find the player, what?, host: " + is_self);            
         }
         return this.tryToStartNextRound();
     }
@@ -1339,7 +2101,8 @@ class Game {
                 }
 
             case "drawAndName":
-                if(this.current_gamemode == "time_travel") {
+                if(this.current_gamemode == "time_travel" && this.is_solution) {
+                    console.log("Returning a solution true")
                     return {
                         "user": this.name,
                         "draw" : this.game_interface.getOutputDraw(),
@@ -1353,6 +2116,7 @@ class Game {
                     "draw" : this.game_interface.getOutputDraw(),
                     "write": this.game_interface.getOutputWrite(),
                     "roundKey": this.roundKey,
+                    "solution": false,
                 }
             
             default:
@@ -1512,9 +2276,10 @@ function setCircleDasharray(timeLeft, seconds) {
   
 
 class GameInterface {
-    constructor(game) {
+    constructor(game, ideaGenerator) {
         this.setLanguageLabels();
         this.game = game;
+        this.ideaGenerator = ideaGenerator
         var g_interface = this;
         this.has_invite = false;
         this.gameSelectionIndex = -1;      
@@ -1582,6 +2347,14 @@ class GameInterface {
         this.finalsDiv = document.getElementById("finals-div");
         this.chatHolder = document.getElementById("chat-holder");
         this.versusHolder = document.getElementById("versus-holder");        
+        this.timeTravelHolder = document.getElementById("time-travel-holder");
+        this.timeTravelHolder.addEventListener("click", () => {
+            if(this.timeTravelIsClickable) {
+                this.doNextFinalElement()
+                this.timeTravelIsClickable = false
+                this.timeTravelHolder.classList.remove("glow")                    
+            }
+        })
         // this.writerHolder = document.getElementById("writer-holder");        
         this.versusBall = document.getElementById("versus-ball");        
         this.colorHolder = document.getElementById("color-holder");
@@ -1606,6 +2379,8 @@ class GameInterface {
         this.finalBeep = new Audio('assets/finalBeep.wav');
         this.bubblyNoise = new Audio('assets/bubblynoise.mp3');
         this.rockyNoise = new Audio('assets/rockysound.mp3');
+        this.tvNoise = new Audio('assets/tv\ sound.wav');
+        this.fastClock = new Audio('assets/fast\ clock.mp3');
         this.hostButton.disabled = true;
         this.startButton.disabled = true;
         
@@ -1708,13 +2483,14 @@ class GameInterface {
             this.changeGameListFocus(1)            
             game.sendChooseGame(1);
         })
-        // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
-        // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
-        // this.listRowChildren[2].children[0].addEventListener("click",() => {
-        //     if(!game.is_host) return;
-        //     this.changeGameListFocus(2)            
-        //     game.sendChooseGame(2);
-        // })
+        this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
+        this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
+        this.listRowChildren[2].children[0].addEventListener("click",() => {
+            if(!game.is_host) return;
+            this.changeGameListFocus(2)            
+            game.sendChooseGame(2);
+        })
+        
         // this.listRowChildren[2].children[0].children[0].textContent = lang[language][gameModes[2].name]
         // this.listRowChildren[2].children[0].children[1].textContent = lang[language][gameModes[2].desc]
         // this.listRowChildren[2].children[0].addEventListener("click",() => {
@@ -1914,7 +2690,11 @@ class GameInterface {
         document.addEventListener('mouseup', (e) => {
             endDrawing(e);
         });
-        document.addEventListener('touchend touchcancel', (e) => {
+        document.addEventListener('touchend', (e) => {
+            console.log("END, OVER, BOOP")
+            endDrawingTouch(e);        
+        });
+        document.addEventListener('touchcancel', (e) => {
             console.log("END, OVER, BOOP")
             endDrawingTouch(e);        
         });
@@ -2080,6 +2860,7 @@ class GameInterface {
     
 
     gameLobby() {
+        this.disableGameStyles()
         this.game.game_started = false;
         this.clearTimeline()
         this.game.name = this.nameBox.value
@@ -2102,6 +2883,9 @@ class GameInterface {
         this.hideInputDiv();
         this.hideOutputDiv();
         this.hideFinalsDiv();
+
+        this.preloadImage(window.location.href + "/assets/tv.png")
+        this.preloadImage(window.location.href + "/assets/clock.png")
 
         if(this.has_invite) {
             //this.game.name = this.nameBox.value
@@ -2160,6 +2944,7 @@ class GameInterface {
     }
 
     mainMenu() {
+        this.disableGameStyles()
         this.game.game_started = false;
         this.quitButton.style.display = 'none'
         this.joinDiv.classList.remove("d-none");
@@ -2183,6 +2968,14 @@ class GameInterface {
         //}
         this.rockyNoise.load();
         this.rockyNoise.play();
+    }
+
+    enableGameStyles() {
+        document.getElementById("game-div").classList.add("game-div-ingame")
+    }
+
+    disableGameStyles() {
+        document.getElementById("game-div").classList.remove("game-div-ingame")
     }
 
     removeLobby() {
@@ -2235,6 +3028,15 @@ class GameInterface {
 
     setInputDivLabel(label) {
         this.inputDivLabel.textContent = label
+    }
+
+    makeInputPlaceholder(type) {
+        this.setInputPlaceholder(this.ideaGenerator.processIdea(type))
+    }
+
+    setInputPlaceholder(text) {
+        this.outputWriteArea.placeholder = text
+        console.log("Set placeholder to: ")
     }
 
     showInputWriteDiv(write) {
@@ -2303,6 +3105,7 @@ class GameInterface {
         this.outputDivLabel.textContent = "";
         this.outputWriteArea.value = "";
         this.color = colors[0];
+        this.canvasHolder.style.background = "white"
         if(this.assignedButton) {
             this.assignedButton.classList.remove("color-focus")
         }
@@ -2339,6 +3142,11 @@ class GameInterface {
 
     setOutputDivLabel(label) {
         this.outputDivLabel.textContent = label;
+    }
+
+    setOutputDrawBackground(drawing) {        
+        var img = "url('" + drawing + "')";
+        this.canvasHolder.style.background = img + " no-repeat, white";
     }
 
     render_xml(el, doc){
@@ -2385,6 +3193,12 @@ class GameInterface {
         return this.canvas.toDataURL();
     }
 
+    preloadImage(url)
+    {
+        var img=new Image();
+        img.src=url;        
+    }
+
     unready() {
         if(this.game.unready()) {
             this.setOutputButtonUnready()
@@ -2403,25 +3217,47 @@ class GameInterface {
         this.finalsDiv.classList.add("d-flex");
         this.finalsDiv.classList.remove("d-none");
         console.log("got show with style " + style)
-        if(style == "chat") {
-            this.chatHolder.classList.add("d-flex");
-            this.chatHolder.classList.remove("d-none");
-            this.versusHolder.classList.remove("d-flex");
-            this.versusHolder.classList.add("d-none");            
-            document.getElementById("game-results").classList.remove("d-none")
-        } else if(style == "versus") {
-            document.getElementById("game-results").classList.add("d-none")
-            this.chatHolder.classList.add("d-none");
-            this.chatHolder.classList.remove("d-flex");            
+        switch(style) {
+            case "chat":
+                this.chatHolder.classList.add("d-flex");
+                this.chatHolder.classList.remove("d-none");
 
-            this.versusHolder.classList.add("d-flex");
-            this.versusHolder.classList.remove("d-none");
-            // this.handleVersusFinals()
-        } else if(style == "writer") {
-            this.chatHolder.classList.add("d-none");
-            this.chatHolder.classList.remove("d-flex");
-            this.versusHolder.classList.remove("d-flex");
-            this.versusHolder.classList.add("d-none");
+                this.versusHolder.classList.remove("d-flex");
+                this.versusHolder.classList.add("d-none");
+                this.timeTravelHolder.classList.remove("d-flex")
+                this.timeTravelHolder.classList.add("d-none")
+                document.getElementById("game-results").classList.remove("d-none")
+                break;
+            case "versus":
+                document.getElementById("game-results").classList.add("d-none")
+                this.chatHolder.classList.add("d-none");
+                this.chatHolder.classList.remove("d-flex");            
+                
+                this.versusHolder.classList.add("d-flex");
+                this.versusHolder.classList.remove("d-none");
+
+                this.timeTravelHolder.classList.remove("d-flex")
+                this.timeTravelHolder.classList.add("d-none")
+                // this.handleVersusFinals()
+                break;
+            case "writer":
+                this.chatHolder.classList.add("d-none");
+                this.chatHolder.classList.remove("d-flex");
+                this.versusHolder.classList.remove("d-flex");
+                this.versusHolder.classList.add("d-none");
+                this.timeTravelHolder.classList.remove("d-flex")
+                this.timeTravelHolder.classList.add("d-none")
+                break;
+            case "time_travel":
+                document.getElementById("game-results").classList.add("d-none")
+                this.chatHolder.classList.add("d-none");
+                this.chatHolder.classList.remove("d-flex");
+                this.versusHolder.classList.add("d-none");
+                this.versusHolder.classList.remove("d-flex");
+                
+                this.timeTravelHolder.classList.add("d-flex")
+                this.timeTravelHolder.classList.remove("d-none")
+                break;
         }
         this.rockyNoise.load();
         this.rockyNoise.play();
@@ -2507,9 +3343,9 @@ class GameInterface {
             } else {                
                 dir = (this.game.last_victory == "l") ? "r" : "l";
             }
-        } else if(this.game.current_gamemode == "writer_name") {
-            dir = null
-            pos = this.writerHolder
+        } else if(this.game.current_gamemode == "time_travel") {            
+            dir = ((this.timelineElementIndex % 2) == 0) ? "p" : "s";
+            pos = document.getElementById("tv-contents")
         }
         
 
@@ -2529,7 +3365,7 @@ class GameInterface {
             while(this.chatHolder.firstElementChild) {
                 this.chatHolder.removeChild(this.chatHolder.lastElementChild);
             }
-        } else {
+        } else if(this.game.current_gamemode == "faceoff") {
             this.game.last_victory = "l"
             let pos = this.versusHolder
             console.log("REMOVING FADEINS!!!!!!!")
@@ -2548,6 +3384,11 @@ class GameInterface {
             pos.firstElementChild.firstElementChild.classList.remove("d-flex");
             pos.firstElementChild.children[1].classList.remove("d-flex");
             pos.firstElementChild.classList.remove("gallery-active")
+        } else if(this.game.current_gamemode == "time_travel") {
+            document.getElementById("tv-title").textContent = ""
+            removeAllChildren(document.getElementById("tv-image-holder"))
+            this.timeTravelIsClickable = false;
+            this.timeTravelHolder.classList.remove("glow")                    
         }
     }
     clearVersusStyles() {
@@ -2574,10 +3415,30 @@ class GameInterface {
                 this.addVersusEnd();
                 break;
 
-            case 'writer':
-                this.addWriterEnd();
+            case 'time_travel':
+                this.addTimeTravelEnd();
                 break;
         }        
+    }
+
+    addTimeTravelEnd() {
+        console.log("Add time travel end!")
+        document.getElementById("foreground").classList.add("foreground-clear")
+        setTimeout(() => {
+            setTimeout(() => {
+                document.getElementById("foreground").classList.remove("foreground-clear")
+            }, 1000)
+            this.clearTimeline();        
+            this.timelineElementIndex = -1;            
+    
+            if(this.timelineIndex >= this.game.gameResults.length) {
+                this.timelineIndex = -1;
+                this.game.hostSendBackToLobby();
+            } else {            
+                this.game.sendDoNextFinalElement(true, "l")
+                this.doNextFinalElement(false);
+            }
+        }, 4000)
     }
 
     addVersusEnd() {
@@ -2687,9 +3548,89 @@ class GameInterface {
                     this.addVersusElement(element, el, direction, startRound)
                 }
                 break;
-            case "writer_name":
-                this.addWriterElement(element, pos)
+            case "time_travel":
+                if(direction == "p") {
+                    if(this.timelineElementIndex == 0) {
+                        this.tvNoise.load()
+                        this.addTimeTravelElement(element, pos, direction)
+                    } else {
+                        
+                        this.fastClock.load()
+                        this.fastClock.play()
+                        document.getElementById("foreground").classList.add("foreground-active")
+                        document.getElementById("time-travel-clock").classList.add("time-travel-clock-animation-right")
+                        this.tvNoise.load()
+                        setTimeout(() => {                        
+                            this.addTimeTravelElement(element, pos, direction, false)
+                            setTimeout(() => {
+                                document.getElementById("foreground").classList.remove("foreground-active")
+                                document.getElementById("time-travel-clock").classList.remove("time-travel-clock-animation-right")
+                            }, 1000)
+                        }, 4000)
+                    }
+                } else {
+                    this.fastClock.load()
+                    this.fastClock.play()
+                    document.getElementById("foreground").classList.add("foreground-active")
+                    document.getElementById("time-travel-clock").classList.add("time-travel-clock-animation-left")
+                    this.tvNoise.load()
+                    setTimeout(() => {                        
+                        this.addTimeTravelElement(element, pos, direction, false)
+                        setTimeout(() => {
+                            document.getElementById("foreground").classList.remove("foreground-active")
+                            document.getElementById("time-travel-clock").classList.remove("time-travel-clock-animation-left")
+                        }, 1000)
+                    }, 4000)
+                }                
                 break;
+        }
+    }
+
+    addTimeTravelElement(element, pos, type, wait = true) {
+        if(wait) {
+            setTimeout(() => {
+                pos.firstElementChild.textContent = element.write
+                pos.firstElementChild.classList.add("blur-in")
+            }, 500)
+        } else {
+            pos.firstElementChild.textContent = element.write
+            pos.firstElementChild.classList.add("blur-in")
+        }
+        if(wait) {
+            setTimeout(() => {
+                removeAllChildren(pos.lastElementChild)                    
+
+                var memePng = document.createElement('img');
+                memePng.src = element.draw;
+                // memePng.classList.add("drawing-finals-style")
+                memePng.classList.add("drawing-fit")
+                memePng.classList.add("w-100")        
+                memePng.classList.add("mh-100") 
+                memePng.classList.add("blur-in")
+                this.tvNoise.play()
+                pos.lastElementChild.appendChild(memePng);
+                if(this.game.is_host) {
+                    setTimeout(() => {
+                        this.timeTravelIsClickable = true;                    
+                    }, 500)
+                }
+            }, 1200)            
+        } else {
+            removeAllChildren(pos.lastElementChild)                    
+
+            var memePng = document.createElement('img');
+            memePng.src = element.draw;
+            // memePng.classList.add("drawing-finals-style")
+            memePng.classList.add("drawing-fit")
+            memePng.classList.add("w-100")        
+            memePng.classList.add("mh-100") 
+            memePng.classList.add("blur-in")       
+            pos.lastElementChild.appendChild(memePng);
+            if(this.game.is_host) {
+                setTimeout(() => {
+                    this.timeTravelIsClickable = true;                    
+                }, 500)
+            }
         }
     }
 
@@ -2934,8 +3875,9 @@ class GameInterface {
 }
 
 console.log("i am losing my mind")
+var ideaGenerator = new IdeaGenerator()
 var game = new Game();
-var game_interface = new GameInterface(game);
+var game_interface = new GameInterface(game, ideaGenerator);
 game.assign_game_interface(game_interface);
 
 let htmlElement = document.getElementsByTagName("html")[0]
